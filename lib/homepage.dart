@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'learnmore.dart';
 import 'navbar.dart';
+import 'footer.dart';
 
 void main() {
   runApp(const MaterialApp(home: HomePage()));
@@ -27,7 +28,7 @@ class _RenewMainPageState extends State<HomePage> {
     ];
 
     final List<String> events = [
-      'CMM322 Smart Device',
+      'CMM214 Animation Fundamental',
       'CMM443 Cloud Computing',
       'CMM311 Digital Learning Media'
     ];
@@ -214,25 +215,8 @@ class _RenewMainPageState extends State<HomePage> {
               ),
               _horizontalSection('Upcoming Events',events),
               SizedBox(height: 40),
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF54EDDC),
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text('FAQ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24, fontFamily: 'Inter')),
-                      SizedBox(height: 5.0),
-                      Text('- Questions?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                      Text('- Yak Ship Hai leoy Esus', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                    ],
-                  ),
-                ),
-              )
+              // Footer //
+              const Footer(),
             ],
           ),
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'homepage.dart'; // Import เข้ามาด้วยเนื่องจากต้องดึง ลิงก์หน้าHome มาจากไฟล์นี้ //
 import 'navbar.dart'; // Import เข้ามาด้วยเนื่องจากต้องดึง Navbar มาจากไฟล์นี้ //
+import 'footer.dart';
 
 void main() {
   runApp(const MaterialApp(home: NavbarPreview()));
@@ -28,21 +29,24 @@ class _NavbarPreviewState extends State<NavbarPreview> {
     return Scaffold(
       backgroundColor: const Color(0xFFCFFFFA),
       body: SafeArea(
-        child:
-        // ตรงนี้คือ Navbar ถ้าจะต้องใช้ให้ก๊อป ResponsiveNavbar ทั้งดุ้นนี้ไปวางไว้ในไฟล์ของท่านเลย //
-        // ตอนนี้ยังไม่สมบูรณ์เนื่องจากยังลิงก์ได้ไม่ครบทุกหน้าของจริงน่าจะเยอะกว่านี้ //
-        ResponsiveNavbar(
-          isMobile: isMobile,
-          isMenuOpen: _isMenuOpen,
-          toggleMenu: () => setState(() => _isMenuOpen = !_isMenuOpen),
-          goToHome: () {
-            setState(() => _isMenuOpen = false);
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage())); // ไปยังหน้า HomePage //
-          },
-          onMyCourses: () {}, // รอมาใส่ลิงก์ //
-          onSupport: () {}, // รอมาใส่ลิงก์ //
-          onLogin: () {}, // รอมาใส่ลิงก์ //
-          onRegister: () {}, // รอมาใส่ลิงก์ //
+        child: Column(
+          children: [
+            ResponsiveNavbar(
+              isMobile: isMobile,
+              isMenuOpen: _isMenuOpen,
+              toggleMenu: () => setState(() => _isMenuOpen = !_isMenuOpen),
+              goToHome: () {
+                setState(() => _isMenuOpen = false);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+              },
+              onMyCourses: () {},
+              onSupport: () {},
+              onLogin: () {},
+              onRegister: () {},
+            ),
+            const Spacer(),
+            const Footer(),
+          ],
         ),
       ),
     );

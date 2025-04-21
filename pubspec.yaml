@@ -15,6 +15,8 @@ dependencies:
 
   cupertino_icons: ^1.0.8
 
+  url_launcher: ^6.2.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -28,5 +30,10 @@ flutter:
   # ✅ เพิ่มส่วนนี้เพื่อให้โหลดรูปภาพจากโฟลเดอร์ assets
   assets:
     - assets/images/
+
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter_18pt-Regular.ttf
 
 
