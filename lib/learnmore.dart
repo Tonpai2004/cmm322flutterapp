@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'homepage.dart';
 import 'navbar.dart';
+import 'footer.dart';
 
 class LearnMorePage extends StatefulWidget {
   const LearnMorePage({super.key});
@@ -50,6 +51,7 @@ class _LearnMorePageState extends State<LearnMorePage> {
                     ),
                   ),
                 ),
+                const Footer(),
               ],
             ),
           ],

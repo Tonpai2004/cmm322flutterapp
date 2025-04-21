@@ -4,10 +4,10 @@ import 'package:url_launcher/url_launcher.dart';
 class Footer extends StatelessWidget {
   const Footer({super.key});
 
-  // เพิ่มฟังก์ชัน _launchURL
   Future<void> _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
     } else {
       throw 'Could not launch $url';
     }
@@ -19,7 +19,7 @@ class Footer extends StatelessWidget {
       width: double.infinity,
       decoration: const BoxDecoration(
         color: Color(0xFF54EDDC),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -27,15 +27,14 @@ class Footer extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center, // จัดให้อยู่กลางในแนวตั้ง
           crossAxisAlignment: CrossAxisAlignment.center, // จัดให้อยู่กลางในแนวนอน
           children: [
-            SizedBox(height: 20.0),
+            SizedBox(height: 5.0),
             const Text(
               'Department of Computer and Technology, Faculty of Industrial Education and Technology\n'
                   "Integrated Building 3 (S13), 6th Floor, King Mongkut's University of Technology Thonburi\n"
                   'Tel : 02-470-8500 | Email : orgcomit@kmutt.ac.th',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               textAlign: TextAlign.center, // จัดข้อความให้อยู่กลาง
             ),
-            SizedBox(height: 10.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.center, // จัดให้ปุ่มในแถวอยู่กลาง
               children: [
