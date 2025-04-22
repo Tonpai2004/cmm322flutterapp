@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'homepage.dart';
 import 'navbar.dart';
-import 'footer.dart';
 
 void main() {
   runApp(const MaterialApp(home: ComingSoon()));
