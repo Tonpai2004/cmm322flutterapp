@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'learnmore.dart';
 import 'navbar.dart';
 import 'footer.dart';
+import 'coming_soon.dart';
 
 void main() {
   runApp(const MaterialApp(home: HomePage()));
@@ -286,45 +287,56 @@ class _RenewMainPageState extends State<HomePage> {
                   padding: const EdgeInsets.symmetric(horizontal: 80),
                   itemCount: events.length,
                   itemBuilder: (context, index) {
-                    return Container(
-                      width: 180,
-                      margin: const EdgeInsets.only(right: 12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF54EDDC),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Column(
-                        children: [
-                          Container(
-                            height: 120,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFF7F7F7),
-                              borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                    return InkWell(
+                      onTap: () {
+                        if (index == 0) {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const LearnMorePage()));
+                        } else {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const ComingSoon()));
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        width: 180,
+                        margin: const EdgeInsets.only(right: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF54EDDC),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              height: 120,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFF7F7F7),
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                'ภาพ ${index + 1}',
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                              ),
                             ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              'ภาพ ${index + 1}',
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10.0, left: 8.0, right: 8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    events[index],
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const Text('By Suriyong'),
+                                ],
+                              ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10.0, left: 8.0, right: 8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  events[index],
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const Text('By Suriyong'),
-                              ],
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     );
+
                   },
                 ),
                 Positioned(
