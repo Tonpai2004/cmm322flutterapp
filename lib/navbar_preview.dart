@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'homepage.dart'; // Import เข้ามาด้วยเนื่องจากต้องดึง ลิงก์หน้าHome มาจากไฟล์นี้ //
 import 'navbar.dart'; // Import เข้ามาด้วยเนื่องจากต้องดึง Navbar มาจากไฟล์นี้ //
-import 'footer.dart';
+import 'footer.dart'; // Import เข้ามาด้วยเนื่องจากต้องดึง Footer มาจากไฟล์นี้ //
 
 void main() {
   runApp(const MaterialApp(home: NavbarPreview()));
@@ -31,7 +31,7 @@ class _NavbarPreviewState extends State<NavbarPreview> {
       body: SafeArea(
         child: Column(
           children: [
-            ResponsiveNavbar(
+            ResponsiveNavbar( // ก็อปตัวนี้ไปลงในไฟล์ดู ไม่ได้ก็ลองให้ ChatGPT ช่วยปรับแต่งให้มันลงรอยกัน เพราะโครงสร้างโค้ดแต่ละคนมันไม่เหมือนกัน ไม่การันตีว่าจะไม่เกิดเออเร่อ //
               isMobile: isMobile,
               isMenuOpen: _isMenuOpen,
               toggleMenu: () => setState(() => _isMenuOpen = !_isMenuOpen),
@@ -44,8 +44,9 @@ class _NavbarPreviewState extends State<NavbarPreview> {
               onLogin: () {},
               onRegister: () {},
             ),
+
             const Spacer(),
-            const Footer(),
+            const Footer(), // ตัวนี้เป็นการเรียกใช้งาน Footer ที่สร้างไว้แล้ว แค่เอามาวางในไฟล์พอสำหรับหน้าไหนที่ใช้งาน Footer //
           ],
         ),
       ),
