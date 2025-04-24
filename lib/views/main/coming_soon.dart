@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'homepage.dart';
-import 'navbar.dart';
+import '../main/homepage.dart';
+import '../main/learnmore.dart';
+import '../main/navbar.dart';
 
 void main() {
   runApp(const MaterialApp(home: ComingSoon()));
@@ -15,6 +16,9 @@ class ComingSoon extends StatefulWidget {
 
 class _ComingSoonState extends State<ComingSoon> {
   bool _isMenuOpen = false;
+
+  bool isLoggedIn = false;
+  String profilePath = 'assets/images/Recording_room.jpg';
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +42,16 @@ class _ComingSoonState extends State<ComingSoon> {
                   },
                   onMyCourses: () {},
                   onSupport: () {},
-                  onLogin: () {},
-                  onRegister: () {},
+                  onLogin: () => setState(() => isLoggedIn = true),
+                  onRegister: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const LearnMorePage())); // Will change it later //
+                  },
+                  isLoggedIn: isLoggedIn, // true / false
+                  profileImagePath: profilePath, // เช่น 'assets/images/user_avatar.jpg'
+                  onProfileTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+                  },
+                  onLogout: () => setState(() => isLoggedIn = false),
                 ),
 
                 Expanded(

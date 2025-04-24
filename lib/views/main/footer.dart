@@ -23,7 +23,7 @@ class Footer extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(15.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -33,7 +33,7 @@ class Footer extends StatelessWidget {
               'Department of Computer and Technology, \nFaculty of Industrial Education and Technology\n'
               "King Mongkut's University of Technology Thonburi\n"
               'Tel : 02-470-8500 | Email : orgcomit@kmutt.ac.th',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, fontFamily: 'Inter'),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 8.0),
@@ -41,27 +41,44 @@ class Footer extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                IconButton(
-                  icon: const Icon(FontAwesomeIcons.globe, size: 35),
-                  onPressed: () => _launchURL('https://cit.kmutt.ac.th/cmm23/'),
+                Tooltip(
+                  message: 'Visit Website',
+                  child: IconButton(
+                    icon: const Icon(FontAwesomeIcons.globe, size: 35),
+                    onPressed: () => _launchURL('https://cit.kmutt.ac.th/cmm23/'),
+                  ),
                 ),
                 const SizedBox(width: 10),
-                IconButton(
-                  icon: const Icon(FontAwesomeIcons.facebook, size: 35),
-                  onPressed: () => _launchURL('https://www.facebook.com/25thCMMKMUTT'),
+                Tooltip(
+                  message: 'Facebook Page',
+                  child: IconButton(
+                    icon: const Icon(FontAwesomeIcons.facebook, size: 35),
+                    onPressed: () => _launchURL('https://www.facebook.com/25thCMMKMUTT'),
+                  ),
                 ),
                 const SizedBox(width: 10),
-                IconButton(
-                  icon: const Icon(FontAwesomeIcons.instagram, size: 35),
-                  onPressed: () => _launchURL('https://www.instagram.com/cmm_kmutt/'),
+                Tooltip(
+                  message: 'Instagram',
+                  child: IconButton(
+                    icon: const Icon(FontAwesomeIcons.instagram, size: 35),
+                    onPressed: () => _launchURL('https://www.instagram.com/cmm_kmutt/'),
+                  ),
                 ),
                 const SizedBox(width: 10),
-                IconButton(
-                  icon: const Icon(FontAwesomeIcons.youtube, size: 35),
-                  onPressed: () => _launchURL('https://www.youtube.com/@CMMKMUTT'),
+                Tooltip(
+                  message: 'YouTube Channel',
+                  child: IconButton(
+                    icon: Container(
+                      width: 40,
+                      height: 40,
+                      alignment: Alignment.center,
+                      child: const Icon(FontAwesomeIcons.youtube, size: 28),
+                    ),
+                    onPressed: () => _launchURL('https://www.youtube.com/@CMMKMUTT'),
+                  ),
                 ),
               ],
-            ),
+            )
           ],
         ),
       ),

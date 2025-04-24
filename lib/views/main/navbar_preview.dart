@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'homepage.dart'; // Import เข้ามาด้วยเนื่องจากต้องดึง ลิงก์หน้าHome มาจากไฟล์นี้ //
-import 'navbar.dart'; // Import เข้ามาด้วยเนื่องจากต้องดึง Navbar มาจากไฟล์นี้ //
-import 'footer.dart'; // Import เข้ามาด้วยเนื่องจากต้องดึง Footer มาจากไฟล์นี้ //
+import '../main/homepage.dart'; // Import เข้ามาด้วยเนื่องจากต้องดึง ลิงก์หน้าHome มาจากไฟล์นี้ //
+import '../main/navbar.dart'; // Import เข้ามาด้วยเนื่องจากต้องดึง Navbar มาจากไฟล์นี้ //
+import '../main/learnmore.dart'; // Import เข้ามาด้วยเนื่องจากต้องดึง Navbar มาจากไฟล์นี้ //
+import '../main/footer.dart'; // Import เข้ามาด้วยเนื่องจากต้องดึง Footer มาจากไฟล์นี้ //
 
 void main() {
   runApp(const MaterialApp(home: NavbarPreview()));
@@ -18,6 +19,8 @@ class _NavbarPreviewState extends State<NavbarPreview> {
 
   // เอาไว้เช็คค่าสถานะว่าแท็บ Menu ได้เปิดไปหรือไม่ อย่าลืมเอาไปใส่ด้วย //
   bool _isMenuOpen = false;
+  bool isLoggedIn = false;
+  String profilePath = 'assets/images/Recording_room.jpg';
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +34,7 @@ class _NavbarPreviewState extends State<NavbarPreview> {
       body: SafeArea(
         child: Column(
           children: [
-            ResponsiveNavbar( // ก็อปตัวนี้ไปลงในไฟล์ดู ไม่ได้ก็ลองให้ ChatGPT ช่วยปรับแต่งให้มันลงรอยกัน เพราะโครงสร้างโค้ดแต่ละคนมันไม่เหมือนกัน ไม่การันตีว่าจะไม่เกิดเออเร่อ //
+            ResponsiveNavbar(
               isMobile: isMobile,
               isMenuOpen: _isMenuOpen,
               toggleMenu: () => setState(() => _isMenuOpen = !_isMenuOpen),
@@ -41,8 +44,16 @@ class _NavbarPreviewState extends State<NavbarPreview> {
               },
               onMyCourses: () {},
               onSupport: () {},
-              onLogin: () {},
-              onRegister: () {},
+              onLogin: () => setState(() => isLoggedIn = true),
+              onRegister: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const LearnMorePage())); // Will change it later //
+              },
+              isLoggedIn: isLoggedIn, // true / false
+              profileImagePath: profilePath, // เช่น 'assets/images/user_avatar.jpg'
+              onProfileTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+              },
+              onLogout: () => setState(() => isLoggedIn = false),
             ),
 
             const Spacer(),
