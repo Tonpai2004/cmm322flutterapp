@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'homepage.dart';
 import 'login.dart';
+import 'support_clip_page.dart';
 import 'navbar.dart';
 import 'footer.dart';
 
@@ -259,9 +260,22 @@ class _SupportPageState extends State<SupportPage> {
           text,
           style: const TextStyle(color: Color(0xFF212D61)),
         ),
+        onTap: () {
+          if (text == 'User Access Guide') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SupportClipPage()),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Selected: $text')),
+            );
+          }
+        },
       ),
     );
   }
+
 }
 
 
