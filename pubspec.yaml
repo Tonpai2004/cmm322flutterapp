@@ -10,6 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
   video_player: ^2.8.1
 
   chewie: ^1.7.4
@@ -30,6 +31,12 @@ dependencies:
 
   flutter_inappwebview: ^6.0.0-beta.22
 
+  syncfusion_flutter_pdfviewer: ^29.1.39
+
+  open_filex: ^4.0.0
+
+  path_provider: ^2.1.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -43,6 +50,7 @@ flutter:
   # ✅ เพิ่มส่วนนี้เพื่อให้โหลดรูปภาพจากโฟลเดอร์ assets
   assets:
     - assets/images/
+    - assets/docs/cmm214_exampledoc.pdf
 
   fonts:
     - family: Inter

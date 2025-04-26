@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:flutter/services.dart' show rootBundle; //เผื่อไว้สำหรับแก้ตอนเปิด pdf แบบ emulator
+import 'package:path_provider/path_provider.dart'; //เผื่อไว้สำหรับแก้ตอนเปิด pdf แบบ emulator
+import 'package:open_filex/open_filex.dart'; //เผื่อไว้สำหรับแก้ตอนเปิด pdf แบบ emulator
+import 'dart:io'; //เผื่อไว้สำหรับแก้ตอนเปิด pdf แบบ emulator
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'homepage.dart';
 import 'login.dart';
@@ -9,6 +15,28 @@ import 'support_page.dart';
 import 'navbar.dart';
 import 'footer.dart';
 
+Future<void> openDocs() async {
+  if (kIsWeb) {
+    // ถ้าเป็น Web
+    final url = Uri.parse('assets/docs/cmm214_exampledoc.pdf');
+    if (!await launchUrl(url, webOnlyWindowName: '_blank')) {
+      throw 'Could not launch $url';
+    }
+  } else {
+    // ถ้าเป็น Android/iOS/Desktop
+    // 1. ดึงไฟล์จาก asset
+    final bytes = await rootBundle.load('assets/docs/cmm214_exampledoc.pdf');
+    final list = bytes.buffer.asUint8List();
+
+    // 2. สร้างไฟล์ชั่วคราว
+    final tempDir = await getTemporaryDirectory();
+    final file = await File('${tempDir.path}/cmm214_exampledoc.pdf').create();
+    await file.writeAsBytes(list);
+
+    // 3. เปิดไฟล์ด้วย open_filex
+    await OpenFilex.open(file.path);
+  }
+}
 
 void main() {
   runApp(MaterialApp(
@@ -33,11 +61,11 @@ class VideoData {
 
 // ✅ รายชื่อวิดีโอทั้งหมด (แก้ไขตามข้อมูลจริงของคุณ)
 final List<VideoData> videoList = [
-  VideoData(title: 'บทที่ 1 คลิปที่ 1', url: 'https://www.youtube.com/watch?v=1D0jAfm18rw', chapter: 'บทที่ 1'),
-  VideoData(title: 'บทที่ 1 คลิปที่ 2', url: 'https://www.youtube.com/watch?v=LMqxMvmwK48', chapter: 'บทที่ 1'),
-  VideoData(title: 'บทที่ 2 คลิปที่ 1', url: 'https://www.youtube.com/watch?v=4slG1ALyjAw', chapter: 'บทที่ 2'),
-  VideoData(title: 'บทที่ 3 คลิปที่ 1', url: 'https://www.youtube.com/watch?v=DDFRPFnCPc8', chapter: 'บทที่ 3'),
-  VideoData(title: 'บทที่ 4 คลิปที่ 1', url: 'https://www.youtube.com/watch?v=IVTZP9dmzxM', chapter: 'บทที่ 4'),
+  VideoData(title: 'Chapter 1 Clip 1', url: 'https://www.youtube.com/watch?v=1D0jAfm18rw', chapter: 'Chapter 1'),
+  VideoData(title: 'Chapter 1 Clip 2', url: 'https://www.youtube.com/watch?v=LMqxMvmwK48', chapter: 'Chapter 1'),
+  VideoData(title: 'Chapter 2 Clip 1', url: 'https://www.youtube.com/watch?v=4slG1ALyjAw', chapter: 'Chapter 2'),
+  VideoData(title: 'Chapter 3 Clip 1', url: 'https://www.youtube.com/watch?v=DDFRPFnCPc8', chapter: 'Chapter 3'),
+  VideoData(title: 'Chapter 4 Clip 1', url: 'https://www.youtube.com/watch?v=IVTZP9dmzxM', chapter: 'Chapter 4'),
 ];
 
 class MainContentVideoPage extends StatefulWidget {
@@ -110,34 +138,37 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
     final video = videoList[newIndex];
     final isNext = newIndex > currentIndex;
 
-    Navigator.pushReplacement(
-      context,
-      PageRouteBuilder(
-        transitionDuration: const Duration(milliseconds: 400),
-        pageBuilder: (context, animation, secondaryAnimation) {
-          return MainContentVideoPage(
-            videoTitle: video.title,
-            videoUrl: video.url,
-            chapter: video.chapter,
-          );
-        },
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const beginLeft = Offset(1.0, 0.0);   // จากขวาไปซ้าย
-          const end = Offset.zero;
+    // ตรวจสอบว่า index ที่เลือกอยู่ในขอบเขตของ videoList หรือไม่
+    if (newIndex >= 0 && newIndex < videoList.length) {
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: 400),
+          pageBuilder: (context, animation, secondaryAnimation) {
+            return MainContentVideoPage(
+              videoTitle: video.title,
+              videoUrl: video.url,
+              chapter: video.chapter,
+            );
+          },
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const beginLeft = Offset(1.0, 0.0);   // จากขวาไปซ้าย
+            const end = Offset.zero;
 
-          const beginRight = Offset(-1.0, 0.0); // จากซ้ายไปขวา
-          final tween = Tween<Offset>(
-            begin: isNext ? beginLeft : beginRight,
-            end: end,
-          ).chain(CurveTween(curve: Curves.easeInOut));
+            const beginRight = Offset(-1.0, 0.0); // จากซ้ายไปขวา
+            final tween = Tween<Offset>(
+              begin: isNext ? beginLeft : beginRight,
+              end: end,
+            ).chain(CurveTween(curve: Curves.easeInOut));
 
-          return SlideTransition(
-            position: animation.drive(tween),
-            child: child,
-          );
-        },
-      ),
-    );
+            return SlideTransition(
+              position: animation.drive(tween),
+              child: child,
+            );
+          },
+        ),
+      );
+    }
   }
 
   @override
@@ -157,7 +188,7 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
         backgroundColor: Colors.red[100],
         body: Center(
           child: Text(
-            'ไม่พบลิงก์วิดีโอ',
+            'No Links Video Here',
             style: TextStyle(color: Colors.red[900], fontSize: 18),
           ),
         ),
@@ -270,7 +301,7 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                             ),
                             const SizedBox(height: 10),
                             const Text(
-                              'ความคืบหน้าในการเรียน',
+                              'Progress in Studying',
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Color(0xFF2866A5),
@@ -301,8 +332,8 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
-                                  onPressed: () {},
-                                  child: const Text('ดาวน์โหลดเอกสาร'),
+                                  onPressed: openDocs, // เปลี่ยนจาก openPdfWeb() เป็น openDocs
+                                  child: const Text('Sheet'), // ชื่อปุ่มยังใช้คำว่า Sheet ตามเดิม
                                 ),
                               ],
                             ),
@@ -349,7 +380,7 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                                       borderRadius: BorderRadius.circular(30),
                                     ),
                                   ),
-                                  child: const Text('< ก่อนหน้า'),
+                                  child: const Text('< Previous'),
                                 ),
                                 ElevatedButton(
                                   onPressed: currentIndex < videoList.length - 1
@@ -363,7 +394,7 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                                       borderRadius: BorderRadius.circular(30),
                                     ),
                                   ),
-                                  child: const Text('ถัดไป >'),
+                                  child: const Text('Next >'),
                                 ),
                               ],
                             ),

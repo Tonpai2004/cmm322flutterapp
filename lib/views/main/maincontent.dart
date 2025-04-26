@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'maincontent_video.dart';
+import 'package:flutter/services.dart' show rootBundle; //เผื่อไว้สำหรับแก้ตอนเปิด pdf แบบ emulator
+import 'package:path_provider/path_provider.dart'; //เผื่อไว้สำหรับแก้ตอนเปิด pdf แบบ emulator
+import 'package:open_filex/open_filex.dart'; //เผื่อไว้สำหรับแก้ตอนเปิด pdf แบบ emulator
+import 'dart:io'; //เผื่อไว้สำหรับแก้ตอนเปิด pdf แบบ emulator
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:provider/provider.dart';
+import 'progress_provider.dart';  // นำเข้า ProgressProvider
+
 
 import 'homepage.dart';
 import 'login.dart';
@@ -8,6 +17,30 @@ import 'mockup_profile.dart';
 import 'support_page.dart';
 import 'navbar.dart';
 import 'footer.dart';
+
+
+Future<void> openDocs() async {
+  if (kIsWeb) {
+    // ถ้าเป็น Web
+    final url = Uri.parse('assets/docs/cmm214_exampledoc.pdf');
+    if (!await launchUrl(url, webOnlyWindowName: '_blank')) {
+      throw 'Could not launch $url';
+    }
+  } else {
+    // ถ้าเป็น Android/iOS/Desktop
+    // 1. ดึงไฟล์จาก asset
+    final bytes = await rootBundle.load('assets/docs/cmm214_exampledoc.pdf');
+    final list = bytes.buffer.asUint8List();
+
+    // 2. สร้างไฟล์ชั่วคราว
+    final tempDir = await getTemporaryDirectory();
+    final file = await File('${tempDir.path}/cmm214_exampledoc.pdf').create();
+    await file.writeAsBytes(list);
+
+    // 3. เปิดไฟล์ด้วย open_filex
+    await OpenFilex.open(file.path);
+  }
+}
 
 void main() {
   runApp(MaterialApp(
@@ -37,6 +70,7 @@ class MainContentPage extends StatefulWidget {
   @override
   _MainContentPageState createState() => _MainContentPageState();
 }
+
 
 class _MainContentPageState extends State<MainContentPage> {
 
@@ -182,6 +216,32 @@ class _MainContentPageState extends State<MainContentPage> {
                                     color: Color(0xFF202D61),
                                   ),
                                 ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            const Text(
+                              'Progress in Studying',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFF2866A5),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  flex: 6,
+                                  child: Container(
+                                    height: 14,
+                                    child: LinearProgressIndicator(
+                                      value: 0.2,
+                                      backgroundColor: const Color(0xFFD9D9D9),
+                                      color: const Color(0xFFFFFFFF),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFCFFFFA),
@@ -191,27 +251,11 @@ class _MainContentPageState extends State<MainContentPage> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
-                                  onPressed: () {},
-                                  child: const Text('เรียนต่อ'),
+                                  onPressed: openDocs, // เปลี่ยนจาก openPdfWeb() เป็น openDocs
+                                  child: const Text('Sheet'),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 10),
-                            const Text(
-                              'ความคืบหน้าในการเรียน',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Color(0xFF2866A5),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            LinearProgressIndicator(
-                              value: progress,
-                              minHeight: 12,
-                              backgroundColor: Colors.grey[300],
-                              valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
-                            ),
-                            const SizedBox(height: 10),
                           ],
                         ),
                       ),
@@ -236,53 +280,53 @@ class _MainContentPageState extends State<MainContentPage> {
                             if (index == 0) {
                               videoList = [
                                 {
-                                  'title': 'คลิปที่ 1: Make An Eye Socket!',
+                                  'title': 'Clip 1: Make An Eye Socket!',
                                   'duration': '27:22 นาที',
                                   'url': 'https://www.youtube.com/watch?v=1D0jAfm18rw',
                                 },
                                 {
-                                  'title': 'คลิปที่ 2: Tentacle and Eyeball',
+                                  'title': 'Clip 2: Tentacle and Eyeball',
                                   'duration': '33:10 นาที',
                                   'url': 'https://www.youtube.com/watch?v=LMqxMvmwK48'
                                 },
                                 {
-                                  'title': 'แบบทดสอบท้ายบท',
+                                  'title': 'Post Test',
                                   'duration': '10 ข้อ'
                                 },
                               ];
                             } else if (index == 1) {
                               videoList = [
                                 {
-                                  'title': 'คลิปที่ 1: Make UV',
+                                  'title': 'Clip 1: Make UV',
                                   'duration': '16:27 นาที',
                                   'url': 'https://www.youtube.com/watch?v=4slG1ALyjAw'
                                 },
                                 {
-                                  'title': 'แบบทดสอบท้ายบท',
+                                  'title': 'Post Test',
                                   'duration': '10 ข้อ'
                                 },
                               ];
                             } else if (index == 2) {
                               videoList = [
                                 {
-                                  'title': 'คลิปที่ 1: Texture Substance',
+                                  'title': 'Clip 1: Texture Substance',
                                   'duration': '13:20 นาที',
                                   'url': 'https://www.youtube.com/watch?v=DDFRPFnCPc8'
                                 },
                                 {
-                                  'title': 'แบบทดสอบท้ายบท',
+                                  'title': 'Post Test',
                                   'duration': '10 ข้อ'
                                 },
                               ];
                             } else if (index == 3) {
                               videoList = [
                                 {
-                                  'title': 'คลิปที่ 1: Light & Render',
+                                  'title': 'Clip 1: Light & Render',
                                   'duration': '16:10 นาที',
                                   'url': 'https://www.youtube.com/watch?v=IVTZP9dmzxM'
                                 },
                                 {
-                                  'title': 'แบบทดสอบท้ายบท',
+                                  'title': 'Post Test',
                                   'duration': '10 ข้อ'
                                 },
                               ];
@@ -291,7 +335,7 @@ class _MainContentPageState extends State<MainContentPage> {
                             }
 
                             return ExpandableLessonTile(
-                              lessonTitle: 'บทที่ ${index + 1}',
+                              lessonTitle: 'Chapter ${index + 1}',
                               videos: videoList,
                               chapterNumber: index + 1,
                             );
@@ -379,7 +423,7 @@ class _ExpandableLessonTileState extends State<ExpandableLessonTile> {
               children: widget.videos.map((video) {
                 return InkWell(
                   onTap: () {
-                    if (video['title'] != 'แบบทดสอบท้ายบท') {
+                    if (video['title'] != 'Post Test') {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
