@@ -8,6 +8,7 @@ environment:
   sdk: ^3.7.2
 
 dependencies:
+  youtube_player_flutter: ^8.1.1
   flutter:
     sdk: flutter
   video_player: ^2.8.1

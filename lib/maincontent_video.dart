@@ -1,51 +1,128 @@
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
-import 'package:chewie/chewie.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+
+// ✅ โครงสร้างวิดีโอ
+class VideoData {
+  final String title;
+  final String url;
+  final String chapter;
+
+  VideoData({
+    required this.title,
+    required this.url,
+    required this.chapter,
+  });
+}
+
+// ✅ รายชื่อวิดีโอทั้งหมด (แก้ไขตามข้อมูลจริงของคุณ)
+final List<VideoData> videoList = [
+  VideoData(title: 'บทที่ 1 คลิปที่ 1', url: 'https://www.youtube.com/watch?v=1D0jAfm18rw', chapter: 'บทที่ 1'),
+  VideoData(title: 'บทที่ 1 คลิปที่ 2', url: 'https://www.youtube.com/watch?v=LMqxMvmwK48', chapter: 'บทที่ 1'),
+  VideoData(title: 'บทที่ 2 คลิปที่ 1', url: 'https://www.youtube.com/watch?v=4slG1ALyjAw', chapter: 'บทที่ 2'),
+  VideoData(title: 'บทที่ 3 คลิปที่ 1', url: 'https://www.youtube.com/watch?v=DDFRPFnCPc8', chapter: 'บทที่ 3'),
+  VideoData(title: 'บทที่ 4 คลิปที่ 1', url: 'https://www.youtube.com/watch?v=IVTZP9dmzxM', chapter: 'บทที่ 4'),
+];
 
 class MainContentVideoPage extends StatefulWidget {
-  const MainContentVideoPage({super.key, required String videoTitle});
+  final String videoTitle;
+  final String videoUrl;
+  final String chapter;
+
+  const MainContentVideoPage({
+    super.key,
+    required this.videoTitle,
+    required this.videoUrl,
+    required this.chapter,
+  });
 
   @override
   State<MainContentVideoPage> createState() => _MainContentVideoPageState();
 }
 
 class _MainContentVideoPageState extends State<MainContentVideoPage> {
-  late VideoPlayerController _videoPlayerController;
-  ChewieController? _chewieController;
+  YoutubePlayerController? _youtubeController;
+  bool hasValidVideo = false;
+  int currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _videoPlayerController = VideoPlayerController.network(
-      'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
-    )..initialize().then((_) {
-      _chewieController = ChewieController(
-        videoPlayerController: _videoPlayerController,
-        autoPlay: false,
-        looping: false,
-        allowFullScreen: true,
-        allowMuting: true,
-        allowPlaybackSpeedChanging: true, // สำหรับเปลี่ยนความเร็ว
-        materialProgressColors: ChewieProgressColors(
-          playedColor: Colors.teal,
-          handleColor: Colors.tealAccent,
-          backgroundColor: Colors.grey,
-          bufferedColor: Colors.lightGreen,
+
+    final currentVideoId = YoutubePlayer.convertUrlToId(widget.videoUrl);
+    debugPrint('Video ID = $currentVideoId'); // ช่วย debug ได้มาก
+
+    // เทียบจาก videoId แทนเพื่อกันกรณี URL มีพารามิเตอร์แปลกๆ
+    currentIndex = videoList.indexWhere((v) =>
+    YoutubePlayer.convertUrlToId(v.url) == currentVideoId &&
+        v.chapter == widget.chapter);
+
+    if (currentVideoId != null && widget.videoUrl.isNotEmpty) {
+      hasValidVideo = true;
+      _youtubeController = YoutubePlayerController(
+        initialVideoId: currentVideoId,
+        flags: const YoutubePlayerFlags(
+          autoPlay: false,
+          mute: false,
+          enableCaption: true,
         ),
       );
-      setState(() {});
-    });
+    }
+  }
+
+  void navigateToVideo(int newIndex) {
+    final video = videoList[newIndex];
+    final isNext = newIndex > currentIndex;
+
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 400),
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return MainContentVideoPage(
+            videoTitle: video.title,
+            videoUrl: video.url,
+            chapter: video.chapter,
+          );
+        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const beginLeft = Offset(1.0, 0.0);   // จากขวาไปซ้าย
+          const end = Offset.zero;
+
+          const beginRight = Offset(-1.0, 0.0); // จากซ้ายไปขวา
+          final tween = Tween<Offset>(
+            begin: isNext ? beginLeft : beginRight,
+            end: end,
+          ).chain(CurveTween(curve: Curves.easeInOut));
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+      ),
+    );
   }
 
   @override
   void dispose() {
-    _videoPlayerController.dispose();
-    _chewieController?.dispose();
+    _youtubeController?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!hasValidVideo || _youtubeController == null) {
+      return Scaffold(
+        backgroundColor: Colors.red[100],
+        body: Center(
+          child: Text(
+            'ไม่พบลิงก์วิดีโอ',
+            style: TextStyle(color: Colors.red[900], fontSize: 18),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF3FFFE),
       body: SafeArea(
@@ -68,10 +145,7 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Image.asset(
-                    'assets/images/cmmlogo.png',
-                    height: 40,
-                  ),
+                  Image.asset('assets/images/cmmlogo.png', height: 40),
                   IconButton(
                     icon: const Icon(Icons.menu, color: Colors.white),
                     onPressed: () {},
@@ -84,9 +158,9 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
             Container(
               color: const Color(0xFFCFFFFA),
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-              child: const Text(
-                'Course',
-                style: TextStyle(
+              child: Text(
+                'CMM214 3D ANIMATION FUNDAMENTALS ${widget.chapter}',
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF202D61),
@@ -121,25 +195,13 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
-                                  'Subject',
-                                  style: TextStyle(
+                                Text(
+                                  widget.videoTitle,
+                                  style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                     color: Color(0xFF202D61),
                                   ),
-                                ),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFCFFFFA),
-                                    foregroundColor: const Color(0xFF253366),
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  onPressed: () {},
-                                  child: const Text('เรียนต่อ'),
                                 ),
                               ],
                             ),
@@ -196,64 +258,46 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                             bottomRight: Radius.circular(20),
                           ),
                         ),
-                        child: _chewieController != null &&
-                            _chewieController!.videoPlayerController.value.isInitialized
-                            ? Column(
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Padding(
-                              padding: EdgeInsets.only(bottom: 8.0),
-                              child: Text(
-                                'บทที่ x: ผึ้งน้อยผสมพันธุ์',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF202D61),
-                                ),
-                              ),
-                            ),
-                            AspectRatio(
-                              aspectRatio:
-                              _videoPlayerController.value.aspectRatio,
-                              child: Chewie(
-                                controller: _chewieController!,
+                            YoutubePlayer(
+                              controller: _youtubeController!,
+                              showVideoProgressIndicator: true,
+                              progressIndicatorColor: Colors.teal,
+                              progressColors: const ProgressBarColors(
+                                playedColor: Colors.teal,
+                                handleColor: Colors.tealAccent,
                               ),
                             ),
                             const SizedBox(height: 16),
-
-                            // ✅ ปุ่ม ก่อนหน้า / ถัดไป แบบขอบมน ไม่มีกรอบ
                             Row(
-                              mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 ElevatedButton(
-                                  onPressed: () {
-                                    // ฟังก์ชันยังไม่ใส่
-                                  },
+                                  onPressed: currentIndex > 0
+                                      ? () => navigateToVideo(currentIndex - 1)
+                                      : null,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                    const Color(0xFFFFFFFF),
-                                    foregroundColor: Color(0xFF202D61),
+                                    backgroundColor: const Color(0xFFFFFFFF),
+                                    foregroundColor: const Color(0xFF202D61),
                                     elevation: 2,
                                     shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                      BorderRadius.circular(30),
+                                      borderRadius: BorderRadius.circular(30),
                                     ),
                                   ),
                                   child: const Text('< ก่อนหน้า'),
                                 ),
                                 ElevatedButton(
-                                  onPressed: () {
-                                    // ฟังก์ชันยังไม่ใส่
-                                  },
+                                  onPressed: currentIndex < videoList.length - 1
+                                      ? () => navigateToVideo(currentIndex + 1)
+                                      : null,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                    const Color(0xFFFFFFFF),
-                                    foregroundColor: Color(0xFF202D61),
+                                    backgroundColor: const Color(0xFFFFFFFF),
+                                    foregroundColor: const Color(0xFF202D61),
                                     elevation: 2,
                                     shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                      BorderRadius.circular(30),
+                                      borderRadius: BorderRadius.circular(30),
                                     ),
                                   ),
                                   child: const Text('ถัดไป >'),
@@ -261,8 +305,7 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                               ],
                             ),
                           ],
-                        )
-                            : const Center(child: CircularProgressIndicator()),
+                        ),
                       ),
                     ],
                   ),
