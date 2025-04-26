@@ -1,8 +1,21 @@
 import 'package:flutter/material.dart';
-import 'maincontent_video.dart'; // ✅ เพิ่มไว้แล้ว
+import 'package:shared_preferences/shared_preferences.dart';
+import 'maincontent_video.dart';
+
+import 'homepage.dart';
+import 'login.dart';
+import 'mockup_profile.dart';
+import 'support_page.dart';
+import 'navbar.dart';
+import 'footer.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MaterialApp(
+    theme: ThemeData(
+      fontFamily: 'Inter',
+    ),
+    home: const MainContentPage(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -18,6 +31,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MainContentPage extends StatefulWidget {
+
   const MainContentPage({Key? key}) : super(key: key);
 
   @override
@@ -25,6 +39,11 @@ class MainContentPage extends StatefulWidget {
 }
 
 class _MainContentPageState extends State<MainContentPage> {
+
+  bool _isMenuOpen = false;
+  bool isLoggedIn = false;
+  String profilePath = 'assets/images/Recording_room.jpg';
+
   final int totalVideos = 5;
   final Set<int> watchedVideos = {};
 
@@ -34,10 +53,33 @@ class _MainContentPageState extends State<MainContentPage> {
     });
   }
 
+  @override
+  void initState() {
+    super.initState();
+    checkLoginStatus();
+  }
+
+  void checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool? loggedIn = prefs.getBool('isLoggedIn');
+    String? storedProfilePath = prefs.getString('profileImagePath');
+
+    setState(() {
+      isLoggedIn = loggedIn ?? false;
+      if (storedProfilePath != null && storedProfilePath.isNotEmpty) {
+        profilePath = storedProfilePath;
+      }
+    });
+  }
+
   double get progress => watchedVideos.length / totalVideos;
 
   @override
   Widget build(BuildContext context) {
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 876;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF3FFFE),
       body: SafeArea(
@@ -45,36 +87,50 @@ class _MainContentPageState extends State<MainContentPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // แถบบนสุด
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-              decoration: BoxDecoration(
-                color: const Color(0xFF54EDDC),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    blurRadius: 8,
-                    offset: const Offset(0, 10),
+            ResponsiveNavbar(
+              isMobile: isMobile,
+              isMenuOpen: _isMenuOpen,
+              toggleMenu: () => setState(() => _isMenuOpen = !_isMenuOpen),
+              goToHome: () {
+                setState(() => _isMenuOpen = false);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+              },
+              onMyCourses: () {},
+              onSupport: () {
+                setState(() => _isMenuOpen = false);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const SupportPage()));
+              },
+              onLogin: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginRegisterPage(showLogin: true),
                   ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Image.asset(
-                        'assets/images/cmmlogo.png',
-                        height: 40,
-                      ),
-                      const SizedBox(width: 8),
-                    ],
+                );
+              },
+              onRegister: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginRegisterPage(showRegister: true),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.menu, color: Colors.white),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
+                );
+              },
+              isLoggedIn: isLoggedIn,
+              profileImagePath: profilePath,
+              onProfileTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MockProfilePage()),
+                );
+              },
+              onLogout: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.remove('isLoggedIn');
+                setState(() {
+                  isLoggedIn = false;
+                });
+              },
             ),
 
             // หัวข้อ Course
@@ -249,25 +305,7 @@ class _MainContentPageState extends State<MainContentPage> {
             ),
 
             // Footer
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 50.0),
-              decoration: const BoxDecoration(
-                color: Color(0xFF54EDDC),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-              ),
-              child: const Center(
-                child: Text(
-                  'Footer content will be added here soon นะจ๊ะเพื่อนๆ.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
+            const Footer(),
           ],
         ),
       ),

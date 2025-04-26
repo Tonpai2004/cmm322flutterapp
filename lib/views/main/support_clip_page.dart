@@ -150,6 +150,33 @@ class _SupportClipPageState extends State<SupportClipPage> {
                           aspectRatio: 16 / 9,
                           child: player,
                         ),
+                        const SizedBox(height: 24), // เว้นระยะห่างจากคลิปวิดีโอ
+                        SizedBox(
+                          width: 150, // ปุ่มขยายเต็มความกว้าง
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF54EDDC), // สีปุ่ม
+                              padding: const EdgeInsets.symmetric(vertical: 16), // ความสูงปุ่ม
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24), // ปุ่มมุมโค้ง
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => const HomePage()),
+                              );
+                            },
+                            child: const Text(
+                              'Done',
+                              style: TextStyle(
+                                color: Colors.white, // สีตัวหนังสือ
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),

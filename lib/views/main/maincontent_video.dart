@@ -1,5 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+
+import 'homepage.dart';
+import 'login.dart';
+import 'mockup_profile.dart';
+import 'support_page.dart';
+import 'navbar.dart';
+import 'footer.dart';
+
+
+void main() {
+  runApp(MaterialApp(
+    theme: ThemeData(
+      fontFamily: 'Inter',
+    ),
+  ));
+}
 
 // ✅ โครงสร้างวิดีโอ
 class VideoData {
@@ -40,6 +57,11 @@ class MainContentVideoPage extends StatefulWidget {
 }
 
 class _MainContentVideoPageState extends State<MainContentVideoPage> {
+
+  bool _isMenuOpen = false;
+  bool isLoggedIn = false;
+  String profilePath = 'assets/images/Recording_room.jpg';
+
   YoutubePlayerController? _youtubeController;
   bool hasValidVideo = false;
   int currentIndex = 0;
@@ -47,6 +69,8 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
   @override
   void initState() {
     super.initState();
+
+    checkLoginStatus();
 
     final currentVideoId = YoutubePlayer.convertUrlToId(widget.videoUrl);
     debugPrint('Video ID = $currentVideoId'); // ช่วย debug ได้มาก
@@ -67,6 +91,19 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
         ),
       );
     }
+  }
+
+  void checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool? loggedIn = prefs.getBool('isLoggedIn');
+    String? storedProfilePath = prefs.getString('profileImagePath');
+
+    setState(() {
+      isLoggedIn = loggedIn ?? false;
+      if (storedProfilePath != null && storedProfilePath.isNotEmpty) {
+        profilePath = storedProfilePath;
+      }
+    });
   }
 
   void navigateToVideo(int newIndex) {
@@ -111,6 +148,10 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 876;
+
     if (!hasValidVideo || _youtubeController == null) {
       return Scaffold(
         backgroundColor: Colors.red[100],
@@ -130,28 +171,50 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // ✅ Top Bar
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-              decoration: BoxDecoration(
-                color: const Color(0xFF54EDDC),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    blurRadius: 8,
-                    offset: const Offset(0, 10),
+            ResponsiveNavbar(
+              isMobile: isMobile,
+              isMenuOpen: _isMenuOpen,
+              toggleMenu: () => setState(() => _isMenuOpen = !_isMenuOpen),
+              goToHome: () {
+                setState(() => _isMenuOpen = false);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+              },
+              onMyCourses: () {},
+              onSupport: () {
+                setState(() => _isMenuOpen = false);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const SupportPage()));
+              },
+              onLogin: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginRegisterPage(showLogin: true),
                   ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Image.asset('assets/images/cmmlogo.png', height: 40),
-                  IconButton(
-                    icon: const Icon(Icons.menu, color: Colors.white),
-                    onPressed: () {},
+                );
+              },
+              onRegister: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginRegisterPage(showRegister: true),
                   ),
-                ],
-              ),
+                );
+              },
+              isLoggedIn: isLoggedIn,
+              profileImagePath: profilePath,
+              onProfileTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MockProfilePage()),
+                );
+              },
+              onLogout: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.remove('isLoggedIn');
+                setState(() {
+                  isLoggedIn = false;
+                });
+              },
             ),
 
             // ✅ Course Header
@@ -159,7 +222,7 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
               color: const Color(0xFFCFFFFA),
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
               child: Text(
-                'CMM214 3D ANIMATION FUNDAMENTALS ${widget.chapter}',
+                'CMM214 : ${widget.chapter}',
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -314,25 +377,7 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
             ),
 
             // ✅ Footer
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 50.0),
-              decoration: const BoxDecoration(
-                color: Color(0xFF54EDDC),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-              ),
-              child: const Center(
-                child: Text(
-                  'Footer content will be added here soon นะจ๊ะเพื่อนๆ.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
+            const Footer(),
           ],
         ),
       ),

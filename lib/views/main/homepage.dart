@@ -69,14 +69,14 @@ class _RenewMainPageState extends State<HomePage> {
         'end': '30/06/2025'
       },
       {
-        'image' : 'assets/images/animation_subject.jpg',
+        'image' : 'assets/images/cloud_computing.jpg',
         'title': 'CMM443 Cloud Computing',
         'by' : 'P.Suriyong',
         'start': '10/05/2025',
         'end': '10/08/2025'
       },
       {
-        'image' : 'assets/images/animation_subject.jpg',
+        'image' : 'assets/images/digital_learning.jpg',
         'title': 'CMM311 Digital Learning Media',
         'by' : 'P.Chanin',
         'start': '15/07/2025',
