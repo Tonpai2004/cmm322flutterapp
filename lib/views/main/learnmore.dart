@@ -1,5 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'homepage.dart';
 import 'login.dart';
 import 'support_page.dart';
@@ -25,7 +25,7 @@ class LearnMorePage extends StatefulWidget {
 class _LearnMorePageState extends State<LearnMorePage> {
   bool _isMenuOpen = false;
   bool isLoggedIn = false;
-  String profilePath = 'assets/images/Recording_room.jpg';
+  String profilePath = 'assets/images/grayprofile.png';
 
   @override
   void initState() {
@@ -34,15 +34,16 @@ class _LearnMorePageState extends State<LearnMorePage> {
   }
 
   void checkLoginStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool? loggedIn = prefs.getBool('isLoggedIn');
-    String? storedProfilePath = prefs.getString('profileImagePath');
-
-    setState(() {
-      isLoggedIn = loggedIn ?? false;
-      if (storedProfilePath != null && storedProfilePath.isNotEmpty) {
-        profilePath = storedProfilePath;
-      }
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      setState(() {
+        if (user != null) {
+          isLoggedIn = true;
+          profilePath = 'assets/images/default_profile.jpg'; // เปลี่ยนเป็นรูปโปรไฟล์เมื่อ login
+        } else {
+          isLoggedIn = false;
+          profilePath = 'assets/images/grayprofile.png'; // รูปที่ใช้ตอนไม่ได้ล็อกอิน
+        }
+      });
     });
   }
 
@@ -91,8 +92,7 @@ class _LearnMorePageState extends State<LearnMorePage> {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
               },
               onLogout: () async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                await prefs.remove('isLoggedIn');
+                await FirebaseAuth.instance.signOut(); //
                 setState(() {
                   isLoggedIn = false;
                 });

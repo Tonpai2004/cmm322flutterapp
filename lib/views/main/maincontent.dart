@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../controllers/progress_controller.dart';
 import 'maincontent_video.dart';
 
 import 'homepage.dart';
@@ -9,48 +11,35 @@ import 'support_page.dart';
 import 'navbar.dart';
 import 'footer.dart';
 
-void main() {
-  runApp(MaterialApp(
-    theme: ThemeData(
-      fontFamily: 'Inter',
-    ),
-    home: const MainContentPage(),
-  ));
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: const MainContentPage(),
-    );
-  }
-}
-
 class MainContentPage extends StatefulWidget {
-
-  const MainContentPage({Key? key}) : super(key: key);
+  final String lessonId;
+  const MainContentPage({Key? key, required this.lessonId}) : super(key: key);
 
   @override
   _MainContentPageState createState() => _MainContentPageState();
 }
 
 class _MainContentPageState extends State<MainContentPage> {
-
   bool _isMenuOpen = false;
   bool isLoggedIn = false;
-  String profilePath = 'assets/images/Recording_room.jpg';
+  String profilePath = 'assets/images/grayprofile.png';
 
   final int totalVideos = 5;
   final Set<int> watchedVideos = {};
+  final ProgressController progressController = ProgressController();
+  double progress = 0.0;
 
   void updateProgress(int videoIndex) {
     setState(() {
       watchedVideos.add(videoIndex);
+      progress = watchedVideos.length / totalVideos;
     });
+
+    // Save progress to Firestore
+    if (isLoggedIn) {
+      final userId = FirebaseAuth.instance.currentUser!.uid;
+      progressController.saveProgress(userId, widget.lessonId, progress);
+    }
   }
 
   @override
@@ -60,23 +49,88 @@ class _MainContentPageState extends State<MainContentPage> {
   }
 
   void checkLoginStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool? loggedIn = prefs.getBool('isLoggedIn');
-    String? storedProfilePath = prefs.getString('profileImagePath');
-
-    setState(() {
-      isLoggedIn = loggedIn ?? false;
-      if (storedProfilePath != null && storedProfilePath.isNotEmpty) {
-        profilePath = storedProfilePath;
-      }
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      setState(() {
+        if (user != null) {
+          isLoggedIn = true;
+          profilePath =
+              'assets/images/default_profile.jpg'; // Update profile image after login
+        } else {
+          isLoggedIn = false;
+          profilePath =
+              'assets/images/grayprofile.png'; // Default image before login
+          print('User is not logged in ja');
+        }
+      });
+      loadProgress(); // Call loadProgress after the authState has been updated
     });
   }
 
-  double get progress => watchedVideos.length / totalVideos;
+  void loadProgress() async {
+    if (isLoggedIn) {
+      final userId = FirebaseAuth.instance.currentUser!.uid;
+      print('User ID: $userId, Lesson ID: ${widget.lessonId}');
+
+      try {
+        // Fetch studentId from Firestore or other data source linked to the user
+        final userDoc =
+            await FirebaseFirestore.instance
+                .collection('students')
+                .doc(userId)
+                .get();
+        if (userDoc.exists) {
+          final studentId =
+              userDoc
+                  .data()?['studentId']; // Assuming 'studentId' is a field in the user document
+
+          if (studentId != null) {
+            print('Student ID: $studentId'); // Print studentId to check
+
+            // Fetch progress data using studentId and lessonId
+            final progressData = await progressController.getProgress(
+              studentId,
+              widget.lessonId,
+            );
+            print(
+              'Progress Data: $progressData',
+            ); // Print the progressData received from controller
+
+            if (progressData != null) {
+              print(
+                'Progress: ${progressData.progress}',
+              ); // Print the progress value
+
+              setState(() {
+                progress =
+                    progressData
+                        .progress; // Access progress value from ProgressModel
+                watchedVideos.add(
+                  progressData.progress.toInt(),
+                ); // Store the watched progress
+              });
+
+              print(
+                'Progress updated: $progress',
+              ); // Print updated progress in setState
+            } else {
+              print('No progress data found'); // Print if no data is returned
+            }
+          } else {
+            print('No studentId found for the user');
+          }
+        } else {
+          print('User document does not exist');
+        }
+      } catch (e) {
+        print('Error fetching studentId: $e');
+      }
+    } else {
+      print('User is not logged in'); // Print if the user is not logged in
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 876;
 
@@ -86,25 +140,32 @@ class _MainContentPageState extends State<MainContentPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // แถบบนสุด
+            // Top Navbar
             ResponsiveNavbar(
               isMobile: isMobile,
               isMenuOpen: _isMenuOpen,
               toggleMenu: () => setState(() => _isMenuOpen = !_isMenuOpen),
               goToHome: () {
                 setState(() => _isMenuOpen = false);
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomePage()),
+                );
               },
               onMyCourses: () {},
               onSupport: () {
                 setState(() => _isMenuOpen = false);
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const SupportPage()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SupportPage()),
+                );
               },
               onLogin: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const LoginRegisterPage(showLogin: true),
+                    builder:
+                        (context) => const LoginRegisterPage(showLogin: true),
                   ),
                 );
               },
@@ -112,7 +173,9 @@ class _MainContentPageState extends State<MainContentPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const LoginRegisterPage(showRegister: true),
+                    builder:
+                        (context) =>
+                            const LoginRegisterPage(showRegister: true),
                   ),
                 );
               },
@@ -121,22 +184,26 @@ class _MainContentPageState extends State<MainContentPage> {
               onProfileTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const MockProfilePage()),
+                  MaterialPageRoute(
+                    builder: (context) => const MockProfilePage(),
+                  ),
                 );
               },
               onLogout: () async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                await prefs.remove('isLoggedIn');
+                await FirebaseAuth.instance.signOut();
                 setState(() {
                   isLoggedIn = false;
                 });
               },
             ),
 
-            // หัวข้อ Course
+            // Course Title
             Container(
               color: const Color(0xFFCFFFFA),
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 14.0,
+              ),
               child: const Text(
                 '3D ANIMATION FUNDAMENTALS',
                 style: TextStyle(
@@ -147,18 +214,21 @@ class _MainContentPageState extends State<MainContentPage> {
               ),
             ),
 
-            // กรอบหลัก
+            // Main Content
             Expanded(
               child: SingleChildScrollView(
                 child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 10.0,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Column(
                     children: [
-                      // ส่วนหัว
+                      // Header Section
                       Container(
                         padding: const EdgeInsets.all(16.0),
                         decoration: BoxDecoration(
@@ -209,14 +279,16 @@ class _MainContentPageState extends State<MainContentPage> {
                               value: progress,
                               minHeight: 12,
                               backgroundColor: Colors.grey[300],
-                              valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                Colors.green,
+                              ),
                             ),
                             const SizedBox(height: 10),
                           ],
                         ),
                       ),
 
-                      // รายชื่อบทเรียน
+                      // Lesson List
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16.0),
@@ -230,7 +302,7 @@ class _MainContentPageState extends State<MainContentPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: List.generate(4, (index) {
-                            // ✅ กำหนดข้อมูล video พร้อมลิงก์
+                            // ✅ Define video content with links
                             List<Map<String, String>> videoList;
 
                             if (index == 0) {
@@ -238,16 +310,18 @@ class _MainContentPageState extends State<MainContentPage> {
                                 {
                                   'title': 'คลิปที่ 1: Make An Eye Socket!',
                                   'duration': '27:22 นาที',
-                                  'url': 'https://www.youtube.com/watch?v=1D0jAfm18rw',
+                                  'url':
+                                      'https://www.youtube.com/watch?v=1D0jAfm18rw',
                                 },
                                 {
                                   'title': 'คลิปที่ 2: Tentacle and Eyeball',
                                   'duration': '33:10 นาที',
-                                  'url': 'https://www.youtube.com/watch?v=LMqxMvmwK48'
+                                  'url':
+                                      'https://www.youtube.com/watch?v=LMqxMvmwK48',
                                 },
                                 {
                                   'title': 'แบบทดสอบท้ายบท',
-                                  'duration': '10 ข้อ'
+                                  'duration': '10 ข้อ',
                                 },
                               ];
                             } else if (index == 1) {
@@ -255,11 +329,12 @@ class _MainContentPageState extends State<MainContentPage> {
                                 {
                                   'title': 'คลิปที่ 1: Make UV',
                                   'duration': '16:27 นาที',
-                                  'url': 'https://www.youtube.com/watch?v=4slG1ALyjAw'
+                                  'url':
+                                      'https://www.youtube.com/watch?v=4slG1ALyjAw',
                                 },
                                 {
                                   'title': 'แบบทดสอบท้ายบท',
-                                  'duration': '10 ข้อ'
+                                  'duration': '10 ข้อ',
                                 },
                               ];
                             } else if (index == 2) {
@@ -267,11 +342,12 @@ class _MainContentPageState extends State<MainContentPage> {
                                 {
                                   'title': 'คลิปที่ 1: Texture Substance',
                                   'duration': '13:20 นาที',
-                                  'url': 'https://www.youtube.com/watch?v=DDFRPFnCPc8'
+                                  'url':
+                                      'https://www.youtube.com/watch?v=DDFRPFnCPc8',
                                 },
                                 {
                                   'title': 'แบบทดสอบท้ายบท',
-                                  'duration': '10 ข้อ'
+                                  'duration': '10 ข้อ',
                                 },
                               ];
                             } else if (index == 3) {
@@ -279,15 +355,17 @@ class _MainContentPageState extends State<MainContentPage> {
                                 {
                                   'title': 'คลิปที่ 1: Light & Render',
                                   'duration': '16:10 นาที',
-                                  'url': 'https://www.youtube.com/watch?v=IVTZP9dmzxM'
+                                  'url':
+                                      'https://www.youtube.com/watch?v=IVTZP9dmzxM',
                                 },
                                 {
                                   'title': 'แบบทดสอบท้ายบท',
-                                  'duration': '10 ข้อ'
+                                  'duration': '10 ข้อ',
                                 },
                               ];
                             } else {
-                              videoList = []; // เผื่อไว้ในกรณีที่เพิ่มเกิน 4 บท
+                              videoList =
+                                  []; // Placeholder in case more lessons are added
                             }
 
                             return ExpandableLessonTile(
@@ -339,7 +417,10 @@ class _ExpandableLessonTileState extends State<ExpandableLessonTile> {
         GestureDetector(
           onTap: () => setState(() => isExpanded = !isExpanded),
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
+            padding: const EdgeInsets.symmetric(
+              vertical: 16.0,
+              horizontal: 20.0,
+            ),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12.0),
@@ -369,43 +450,57 @@ class _ExpandableLessonTileState extends State<ExpandableLessonTile> {
             width: double.infinity,
             decoration: const BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(1.0),
-              ),
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(1.0)),
             ),
-
-            padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+            padding: const EdgeInsets.symmetric(
+              vertical: 10.0,
+              horizontal: 20.0,
+            ),
             child: Column(
-              children: widget.videos.map((video) {
-                return InkWell(
-                  onTap: () {
-                    if (video['title'] != 'แบบทดสอบท้ายบท') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => MainContentVideoPage(
-                            videoTitle: video['title']!,
-                            videoUrl: video['url'] ?? '', // ป้องกัน null
-                            chapter: widget.lessonTitle,
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children:
+                  widget.videos.map((video) {
+                    return InkWell(
+                      onTap: () {
+                        if (video['title'] != 'แบบทดสอบท้ายบท') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (_) => MainContentVideoPage(
+                                    videoTitle: video['title']!,
+                                    videoUrl:
+                                        video['url'] ??
+                                        '', // Prevent null error
+                                    chapter: widget.lessonTitle,
+                                  ),
+                            ),
+                          );
+                        }
+                      },
+                      child: Column(
                         children: [
-                          Text(video['title']!, style: const TextStyle(fontSize: 15)),
-                          Text(video['duration']!, style: const TextStyle(fontSize: 14)),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                video['title']!,
+                                style: const TextStyle(fontSize: 15),
+                              ),
+                              Text(
+                                video['duration']!,
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            ],
+                          ),
+                          const Divider(
+                            height: 20,
+                            thickness: 1,
+                            color: Color(0xFFE0E0E0),
+                          ),
                         ],
                       ),
-                      const Divider(height: 20, thickness: 1, color: Color(0xFFE0E0E0)),
-                    ],
-                  ),
-                );
-              }).toList(),
+                    );
+                  }).toList(),
             ),
           ),
         const SizedBox(height: 12.0),

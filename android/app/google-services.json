@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "771244686030",
+    "project_id": "cmm322-pj",
+    "storage_bucket": "cmm322-pj.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:771244686030:android:928f5c3a3a33d29b732e9f",
+        "android_client_info": {
+          "package_name": "com.example.cmmcontent.contentpagecmmapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3yZ4b8CCvnytfgmtjKz3AYkmyOerhyjA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

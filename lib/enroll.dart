@@ -1,5 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../views/main/homepage.dart';
@@ -27,7 +27,7 @@ class Enroll extends StatefulWidget {
 class _EnrollState extends State<Enroll> {
   bool _isMenuOpen = false;
   bool isLoggedIn = false;
-  String profilePath = 'assets/images/Recording_room.jpg';
+  String profilePath = 'assets/images/grayprofile.png';
 
   final String videoUrl = 'https://youtu.be/Wawwhw3oZzc?si=bMy5qbzZmg6uMETy';
 
@@ -38,15 +38,16 @@ class _EnrollState extends State<Enroll> {
   }
 
   void checkLoginStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool? loggedIn = prefs.getBool('isLoggedIn');
-    String? storedProfilePath = prefs.getString('profileImagePath');
-
-    setState(() {
-      isLoggedIn = loggedIn ?? false;
-      if (storedProfilePath != null && storedProfilePath.isNotEmpty) {
-        profilePath = storedProfilePath;
-      }
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      setState(() {
+        if (user != null) {
+          isLoggedIn = true;
+          profilePath = 'assets/images/default_profile.jpg'; // เปลี่ยนเป็นรูปโปรไฟล์เมื่อ login
+        } else {
+          isLoggedIn = false;
+          profilePath = 'assets/images/grayprofile.png'; // รูปที่ใช้ตอนไม่ได้ล็อกอิน
+        }
+      });
     });
   }
 
@@ -74,8 +75,7 @@ class _EnrollState extends State<Enroll> {
                 profileImagePath: profilePath,
                 onProfileTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MockProfilePage())),
                 onLogout: () async {
-                  SharedPreferences prefs = await SharedPreferences.getInstance();
-                  await prefs.remove('isLoggedIn');
+                  await FirebaseAuth.instance.signOut();
                   setState(() => isLoggedIn = false);
                 },
               ),

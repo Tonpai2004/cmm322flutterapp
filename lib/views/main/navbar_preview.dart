@@ -20,7 +20,7 @@ class _NavbarPreviewState extends State<NavbarPreview> {
   // เอาไว้เช็คค่าสถานะว่าแท็บ Menu ได้เปิดไปหรือไม่ อย่าลืมเอาไปใส่ด้วย //
   bool _isMenuOpen = false;
   bool isLoggedIn = false;
-  String profilePath = 'assets/images/Recording_room.jpg';
+  String profilePath = 'assets/images/grayprofile.png';
 
   @override
   Widget build(BuildContext context) {

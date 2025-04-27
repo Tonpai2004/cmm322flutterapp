@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'homepage.dart';
 import 'support_page.dart';
 import 'navbar.dart';
+import '../../controllers/auth_controller.dart';
 
 void main() {
-  runApp(MaterialApp(
-      theme: ThemeData(
-        fontFamily: 'Inter',
-      ),
-      home: LoginRegisterPage()));
+  runApp(
+    MaterialApp(
+      theme: ThemeData(fontFamily: 'Inter'),
+      home: LoginRegisterPage(),
+    ),
+  );
 }
 
 class LoginRegisterPage extends StatefulWidget {
@@ -31,10 +32,12 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
   bool showRegisterForm = false;
   bool isButtonPressed = false;
 
+  final AuthController authController = AuthController();
+
   // This is for navigation bar //
   bool _isMenuOpen = false;
   bool isLoggedIn = false;
-  String profilePath = 'assets/images/Recording_room.jpg';
+  String profilePath = 'assets/images/grayprofile.png';
 
   final Color defaultColor = const Color(0xFF54EDDC);
   final Color pressedColor = const Color(0xFF4CD1C2);
@@ -47,26 +50,51 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
   final TextEditingController regNameController = TextEditingController();
   final TextEditingController regStudentIdController = TextEditingController();
   final TextEditingController regPasswordController = TextEditingController();
-  final TextEditingController regConfirmPasswordController = TextEditingController();
+  final TextEditingController regConfirmPasswordController =
+      TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _loadLoginStatus();
+
+    // ตรวจสอบสถานะผู้ใช้เมื่อเริ่มต้น
+    final user = authController.currentUser;
+    setState(() {
+      isLoggedIn = user != null;
+      profilePath = user != null
+          ? 'assets/images/default_profile.jpg'
+          : 'assets/images/grayprofile.png';
+
+      // เปลี่ยนปุ่มตามสถานะการเข้าสู่ระบบ
+      if (widget.showRegister) {
+        buttonText = "Register";  // ถ้าแสดงฟอร์มลงทะเบียน ให้แสดง "Register"
+      } else {
+        buttonText = user != null ? "Log Out" : "Log In";  // ถ้าไม่มีการแสดงฟอร์มลงทะเบียนให้แสดงตามสถานะการเข้าสู่ระบบ
+      }
+    });
+
+    // ฟังการเปลี่ยนแปลงสถานะการล็อกอิน
+    authController.authStateChanges.listen((user) {
+      setState(() {
+        isLoggedIn = user != null;
+        profilePath = user != null
+            ? 'assets/images/default_profile.jpg'
+            : 'assets/images/grayprofile.png';
+        // เปลี่ยนปุ่มตามสถานะการเข้าสู่ระบบ
+        if (widget.showRegister) {
+          buttonText = "Register";  // ถ้าแสดงฟอร์มลงทะเบียน ให้แสดง "Register"
+        } else {
+          buttonText = user != null ? "Log Out" : "Log In";  // ถ้าไม่มีการแสดงฟอร์มลงทะเบียนให้แสดงตามสถานะการเข้าสู่ระบบ
+        }
+      });
+    });
+
+    // กำหนดค่าเริ่มต้นให้ showLoginForm และ showRegisterForm
     showLoginForm = widget.showLogin;
     showRegisterForm = widget.showRegister;
-    buttonText = widget.showLogin ? "Log In" : (widget.showRegister ? "Register" : "Log In");
   }
 
-  void _loadLoginStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final loggedIn = prefs.getBool('isLoggedIn') ?? false;
-    final storedProfilePath = prefs.getString('profileImagePath') ?? 'assets/images/default_profile.png';
-    setState(() {
-      isLoggedIn = loggedIn;
-      profilePath = storedProfilePath;
-    });
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -85,18 +113,25 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
               toggleMenu: () => setState(() => _isMenuOpen = !_isMenuOpen),
               goToHome: () {
                 setState(() => _isMenuOpen = false);
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomePage()),
+                );
               },
               onMyCourses: () {},
               onSupport: () {
                 setState(() => _isMenuOpen = false);
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const SupportPage()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SupportPage()),
+                );
               },
               onLogin: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const LoginRegisterPage(showLogin: true),
+                    builder:
+                        (context) => const LoginRegisterPage(showLogin: true),
                   ),
                 );
               },
@@ -104,16 +139,27 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const LoginRegisterPage(showRegister: true),
+                    builder:
+                        (context) =>
+                            const LoginRegisterPage(showRegister: true),
                   ),
                 );
               },
               isLoggedIn: isLoggedIn,
               profileImagePath: profilePath,
               onProfileTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomePage()),
+                );
               },
-              onLogout: () => setState(() => isLoggedIn = false),
+              onLogout: () async {
+                await authController.logout();
+                setState(() {
+                  isLoggedIn = false;
+                  profilePath = 'assets/images/grayprofile.png';
+                });
+              },
             ),
             Expanded(
               child: Center(
@@ -147,12 +193,13 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                             buttonText = "Register";
                           });
                         },
-                        borderRadius: showRegisterForm
-                            ? BorderRadius.zero
-                            : const BorderRadius.only(
-                          bottomLeft: Radius.circular(20),
-                          bottomRight: Radius.circular(20),
-                        ),
+                        borderRadius:
+                            showRegisterForm
+                                ? BorderRadius.zero
+                                : const BorderRadius.only(
+                                  bottomLeft: Radius.circular(20),
+                                  bottomRight: Radius.circular(20),
+                                ),
                       ),
                       if (showRegisterForm) _buildRegisterForm(),
                       const SizedBox(height: 40),
@@ -172,37 +219,61 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                               });
                             },
                             onTap: () async {
-                              final prefs = await SharedPreferences.getInstance();
+                              setState(() {
+                                isButtonPressed = false;
+                              });
 
                               if (buttonText == "Register") {
-                                if (regPasswordController.text != regConfirmPasswordController.text) {
-                                  _showDialog("Password ไม่ตรงกัน");
+                                if (regPasswordController.text !=
+                                    regConfirmPasswordController.text) {
+                                  _showDialog("Password mismatch");
                                   return;
                                 }
-                                await prefs.setString('name', regNameController.text);
-                                await prefs.setString('studentId', regStudentIdController.text);
-                                await prefs.setString('password', regPasswordController.text);
-                                await prefs.setString('profileImagePath', 'assets/images/default_profile.png');
-                                _showDialog("Register Success!");
+
+                                String? errorMessage = await authController
+                                    .register(
+                                      name: regNameController.text,
+                                      studentId: regStudentIdController.text,
+                                      password: regPasswordController.text,
+                                    );
+
+                                if (errorMessage != null) {
+                                  _showDialog(errorMessage);
+                                } else {
+                                  _showDialog("Register Success!");
+                                }
                               } else {
-                                final storedId = prefs.getString('studentId');
-                                final storedPass = prefs.getString('password');
-                                if (studentIdController.text == storedId && passwordController.text == storedPass) {
+                                String? errorMessage = await authController
+                                    .login(
+                                      studentId: studentIdController.text,
+                                      password: passwordController.text,
+                                    );
+
+                                if (errorMessage != null) {
+                                  _showDialog(errorMessage);
+                                } else {
                                   setState(() {
                                     isLoggedIn = true;
-                                    profilePath = 'assets/images/default_profile.png'; // ตั้ง default profile
+                                    profilePath =
+                                        'assets/images/default_profile.jpg'; // ใช้ default ไปก่อน
                                   });
-                                  await prefs.setBool('isLoggedIn', true);
-                                  await prefs.setString('profileImagePath', profilePath); // บันทึกลง prefs ด้วย
-                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomePage()));
-                                } else {
-                                  _showDialog("StudentID or Password is not correct, try again");
+
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const HomePage(),
+                                    ),
+                                  );
                                 }
                               }
                             },
+
                             child: Container(
                               decoration: BoxDecoration(
-                                color: isButtonPressed ? pressedColor : defaultColor,
+                                color:
+                                    isButtonPressed
+                                        ? pressedColor
+                                        : defaultColor,
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
@@ -211,10 +282,17 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                                   ),
                                 ],
                               ),
-                              padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 20),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 80,
+                                vertical: 20,
+                              ),
                               child: Text(
                                 buttonText,
-                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF212D61)),
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF212D61),
+                                ),
                               ),
                             ),
                           ),
@@ -250,7 +328,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
               color: Colors.black26,
               blurRadius: 6,
               offset: Offset(0, 3),
-            )
+            ),
           ],
         ),
         child: Center(
@@ -276,11 +354,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
       decoration: BoxDecoration(
         color: const Color(0xFFCFFFFA),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 6,
-            offset: Offset(0, 4),
-          ),
+          BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 4)),
         ],
       ),
       child: Column(
@@ -301,12 +375,19 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
           const SizedBox(height: 16),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
-            child: _styledTextField('Student ID', controller: studentIdController),
+            child: _styledTextField(
+              'Student ID',
+              controller: studentIdController,
+            ),
           ),
           const SizedBox(height: 12),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
-            child: _styledTextField('Password', obscure: true, controller: passwordController),
+            child: _styledTextField(
+              'Password',
+              obscure: true,
+              controller: passwordController,
+            ),
           ),
           const SizedBox(height: 20),
         ],
@@ -322,11 +403,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
         color: const Color(0xFFCFFFFA),
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(12)),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 6,
-            offset: Offset(0, 4),
-          ),
+          BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 4)),
         ],
       ),
       child: Column(
@@ -352,17 +429,28 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
           const SizedBox(height: 12),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
-            child: _styledTextField('Student ID', controller: regStudentIdController),
+            child: _styledTextField(
+              'Student ID',
+              controller: regStudentIdController,
+            ),
           ),
           const SizedBox(height: 12),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
-            child: _styledTextField('Password', obscure: true, controller: regPasswordController),
+            child: _styledTextField(
+              'Password',
+              obscure: true,
+              controller: regPasswordController,
+            ),
           ),
           const SizedBox(height: 12),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
-            child: _styledTextField('Confirm Password', obscure: true, controller: regConfirmPasswordController),
+            child: _styledTextField(
+              'Confirm Password',
+              obscure: true,
+              controller: regConfirmPasswordController,
+            ),
           ),
           const SizedBox(height: 20),
         ],
@@ -370,7 +458,11 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
     );
   }
 
-  Widget _styledTextField(String hint, {bool obscure = false, TextEditingController? controller}) {
+  Widget _styledTextField(
+    String hint, {
+    bool obscure = false,
+    TextEditingController? controller,
+  }) {
     return TextField(
       controller: controller,
       obscureText: obscure,

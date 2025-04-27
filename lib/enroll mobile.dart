@@ -1,16 +1,21 @@
+import 'package:contentpagecmmapp/views/main/maincontent.dart';
 import 'package:flutter/material.dart';
+
+import 'controllers/workshop_controller.dart';
 
 class WorkshopData {
   final String subject;
   final String code;
   final String startDate;
   final String endDate;
+  final String imageUrl;
 
   WorkshopData({
     required this.subject,
     required this.code,
     required this.startDate,
     required this.endDate,
+    required this.imageUrl,
   });
 }
 
@@ -20,18 +25,20 @@ void main() {
     theme: ThemeData(
       fontFamily: 'Inter',
     ),
-    home: Enroll(),
+    home: EnrollMobile(),
   ));
 }
 
-class Enroll extends StatefulWidget {
-  const Enroll({super.key});
+class EnrollMobile extends StatefulWidget {
+  const EnrollMobile({super.key});
 
   @override
-  _EnrollState createState() => _EnrollState();
+  _EnrollMobileState createState() => _EnrollMobileState();
 }
 
-class _EnrollState extends State<Enroll> {
+class _EnrollMobileState extends State<EnrollMobile> {
+  final WorkshopController _workshopController = WorkshopController();
+
   final double sidebarWidth = 250;
   final Duration _animationDuration = const Duration(milliseconds: 300);
   bool _isSidebarOpen = false;
@@ -246,53 +253,31 @@ class _EnrollState extends State<Enroll> {
                   ),
                 ),
               ),
-              body: ListView(
-                children: [
-                  const SizedBox(height: 16),
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 150.0),
-                      child: Text(
-                        'Get ready! 3 events launching soon',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 150.0),
-                    child: Divider(color: Color(0xFF2C67A5), thickness: 4),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildWorkshopCard(
-                    context,
-                    WorkshopData(
-                      subject: 'CMM 214 Animation',
-                      code: 'FLTR101',
-                      startDate: 'April 1, 2025',
-                      endDate: 'April 5, 2025',
-                    ),
-                  ),
-                  _buildWorkshopCard(
-                    context,
-                    WorkshopData(
-                      subject: 'CMM443 Cloud Computing',
-                      code: 'AI202',
-                      startDate: 'May 10, 2025',
-                      endDate: 'May 20, 2025',
-                    ),
-                  ),
-                  _buildWorkshopCard(
-                    context,
-                    WorkshopData(
-                      subject: 'CMM311 Digital Learning Media',
-                      code: 'UXD303',
-                      startDate: 'June 15, 2025',
-                      endDate: 'June 18, 2025',
-                    ),
-                  ),
-                ],
+
+
+              body: StreamBuilder<List<WorkshopData>>(
+                stream: _workshopController.getWorkshops(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return const Center(child: Text('Error fetching data'));
+                  }
+
+                  final workshops = snapshot.data;
+
+                  if (workshops == null || workshops.isEmpty) {
+                    return const Center(child: Text('No workshops available'));
+                  }
+
+                  return ListView.builder(
+                    itemCount: workshops.length,
+                    itemBuilder: (context, index) {
+                      return _buildWorkshopCard(context, workshops[index]);
+                    },
+                  );
+                },
               ),
             ),
           ),
@@ -317,86 +302,94 @@ class _EnrollState extends State<Enroll> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Container(
-          margin: const EdgeInsets.all(30),
-          padding: const EdgeInsets.all(40),
-          decoration: BoxDecoration(
-            color: const Color(0xffbdece7),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Column(
-            children: [
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  children: [
-                    Container(
-                      height: 200,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'Image',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+        GestureDetector(
+          onTap: () {
+            // Handle onTap here
+            // For example, navigate to a detail page:
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MainContentPage(lessonId: data.code,),
+              ),
+            );
+          },
+          child: Container(
+            margin: const EdgeInsets.all(30),
+            padding: const EdgeInsets.all(40),
+            decoration: BoxDecoration(
+              color: const Color(0xffbdece7),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              children: [
+                Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 200,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Image.network(
+                          data.imageUrl, // ใส่ URL ของภาพที่ได้จาก data.imageUrl
+                          fit: BoxFit.cover,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF54eddc),
-                        borderRadius: BorderRadius.only(
-                          bottomRight: Radius.circular(8),
-                          bottomLeft: Radius.circular(8),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            data.subject,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
+                      const SizedBox(height: 20),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF54eddc),
+                          borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(8),
+                            bottomLeft: Radius.circular(8),
                           ),
-                          const SizedBox(height: 4),
-                          Text('Course Code: ${data.code}'),
-                          Text('Course Start Date: ${data.startDate}'),
-                          Text('Course End Date: ${data.endDate}'),
-                          const SizedBox(height: 8),
-                          ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF46B69C),
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data.subject,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
                               ),
                             ),
-                            child: const Text('activity hours'),
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            Text('Course Code: ${data.code}'),
+                            Text('Course Start Date: ${data.startDate}'),
+                            Text('Course End Date: ${data.endDate}'),
+                            const SizedBox(height: 8),
+                            ElevatedButton(
+                              onPressed: () {},
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF46B69C),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              child: const Text('activity hours'),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
     );
   }
+
+
 }

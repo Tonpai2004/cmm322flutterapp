@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
+import '../quiz/quiz_screen.dart';
 import 'homepage.dart';
 import 'login.dart';
 import 'mockup_profile.dart';
@@ -60,7 +63,7 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
 
   bool _isMenuOpen = false;
   bool isLoggedIn = false;
-  String profilePath = 'assets/images/Recording_room.jpg';
+  String profilePath = 'assets/images/grayprofile.png';
 
   YoutubePlayerController? _youtubeController;
   bool hasValidVideo = false;
@@ -94,15 +97,16 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
   }
 
   void checkLoginStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool? loggedIn = prefs.getBool('isLoggedIn');
-    String? storedProfilePath = prefs.getString('profileImagePath');
-
-    setState(() {
-      isLoggedIn = loggedIn ?? false;
-      if (storedProfilePath != null && storedProfilePath.isNotEmpty) {
-        profilePath = storedProfilePath;
-      }
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      setState(() {
+        if (user != null) {
+          isLoggedIn = true;
+          profilePath = 'assets/images/default_profile.jpg'; // เปลี่ยนเป็นรูปโปรไฟล์เมื่อ login
+        } else {
+          isLoggedIn = false;
+          profilePath = 'assets/images/grayprofile.png'; // รูปที่ใช้ตอนไม่ได้ล็อกอิน
+        }
+      });
     });
   }
 
@@ -139,6 +143,42 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
       ),
     );
   }
+  void showTestPopup() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('แบบทดสอบท้ายบท'),
+          content: const Text('คุณต้องการทำแบบทดสอบท้ายบทหรือไม่?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('ยกเลิก'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('ไปยังแบบทดสอบ'),
+              onPressed: () {
+                Navigator.of(context).pop(); // ปิด Dialog ก่อน
+
+                // นำไปยังหน้า QuizScreen ตามเงื่อนไขของ currentIndex
+                if (currentIndex == 2) {
+                  Get.to(QuizScreen(category: "CMM214 : 1 Modelling"));
+                } else if (currentIndex == 3) {
+                  Get.to(QuizScreen(category: "CMM214 : 2 UV Map"));
+                }else if (currentIndex == 4) {
+                  Get.to(QuizScreen(category: "CMM214 : 3 Texturing"));
+                }else if (currentIndex == 5) {
+                  Get.to(QuizScreen(category: "CMM214 : 4 Lighting"));
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   void dispose() {
@@ -162,6 +202,13 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
           ),
         ),
       );
+    }
+
+    // ตรวจสอบ currentIndex และแสดงป็อปอัพถ้าตรงกับเงื่อนไข
+    if (currentIndex == 2 || currentIndex == 3 || currentIndex == 4 || currentIndex == 5) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showTestPopup();
+      });
     }
 
     return Scaffold(
@@ -209,8 +256,7 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                 );
               },
               onLogout: () async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                await prefs.remove('isLoggedIn');
+                await FirebaseAuth.instance.signOut();
                 setState(() {
                   isLoggedIn = false;
                 });
