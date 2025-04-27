@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../enrolled.dart';
 import 'homepage.dart';
 import 'login.dart';
+import 'mockup_profile.dart';
 import 'support_page.dart';
 import 'navbar.dart';
 import 'footer.dart';
@@ -64,7 +66,10 @@ class _LearnMorePageState extends State<LearnMorePage> {
                 setState(() => _isMenuOpen = false);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
               },
-              onMyCourses: () {},
+              onMyCourses: () {
+                setState(() => _isMenuOpen = false);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));
+              },
               onSupport: () {
                 setState(() => _isMenuOpen = false);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const SupportPage()));
@@ -88,7 +93,10 @@ class _LearnMorePageState extends State<LearnMorePage> {
               isLoggedIn: isLoggedIn,
               profileImagePath: profilePath,
               onProfileTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MockProfilePage()),
+                );
               },
               onLogout: () async {
                 SharedPreferences prefs = await SharedPreferences.getInstance();

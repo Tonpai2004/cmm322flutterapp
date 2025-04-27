@@ -20,18 +20,18 @@ void main() {
     theme: ThemeData(
       fontFamily: 'Inter',
     ),
-    home: Enroll(),
+    home: Enroll_mobile(),
   ));
 }
 
-class Enroll extends StatefulWidget {
-  const Enroll({super.key});
+class Enroll_mobile extends StatefulWidget {
+  const Enroll_mobile({super.key});
 
   @override
-  _EnrollState createState() => _EnrollState();
+  _EnrollMobileState createState() => _EnrollMobileState();
 }
 
-class _EnrollState extends State<Enroll> {
+class _EnrollMobileState extends State<Enroll_mobile> {
   final double sidebarWidth = 250;
   final Duration _animationDuration = const Duration(milliseconds: 300);
   bool _isSidebarOpen = false;

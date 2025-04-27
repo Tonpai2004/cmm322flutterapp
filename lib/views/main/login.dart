@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../enrolled.dart';
 import 'homepage.dart';
+import 'mockup_profile.dart';
 import 'support_page.dart';
 import 'navbar.dart';
 
@@ -87,7 +89,10 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                 setState(() => _isMenuOpen = false);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
               },
-              onMyCourses: () {},
+              onMyCourses: () {
+                setState(() => _isMenuOpen = false);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));
+              },
               onSupport: () {
                 setState(() => _isMenuOpen = false);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const SupportPage()));
@@ -111,9 +116,18 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
               isLoggedIn: isLoggedIn,
               profileImagePath: profilePath,
               onProfileTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MockProfilePage()),
+                );
               },
-              onLogout: () => setState(() => isLoggedIn = false),
+              onLogout: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.remove('isLoggedIn');
+                setState(() {
+                  isLoggedIn = false;
+                });
+              },
             ),
             Expanded(
               child: Center(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../enrolled.dart';
 import 'homepage.dart';
 import 'learnmore.dart';
 import 'login.dart';
@@ -93,7 +94,10 @@ class _SupportClipPageState extends State<SupportClipPage> {
                     setState(() => _isMenuOpen = false);
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
                   },
-                  onMyCourses: () {},
+                  onMyCourses: () {
+                    setState(() => _isMenuOpen = false);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));
+                  },
                   onSupport: () {
                     setState(() => _isMenuOpen = false);
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const SupportPage()));

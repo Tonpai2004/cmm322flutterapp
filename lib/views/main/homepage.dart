@@ -1,5 +1,8 @@
+import 'package:contentpagecmmapp/enroll%20mobile.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../enroll.dart';
+import '../../enrolled.dart';
 import 'learnmore.dart';
 import 'login.dart';
 import 'mockup_profile.dart';
@@ -102,7 +105,10 @@ class _RenewMainPageState extends State<HomePage> {
                     setState(() => _isMenuOpen = false);
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
                   },
-                  onMyCourses: () {},
+                  onMyCourses: () {
+                    setState(() => _isMenuOpen = false);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));
+                  },
                   onSupport: () {
                     setState(() => _isMenuOpen = false);
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const SupportPage()));
@@ -374,7 +380,7 @@ class _RenewMainPageState extends State<HomePage> {
                     return InkWell(
                       onTap: () {
                         if (index == 0) {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const LearnMorePage()));
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const Enroll()));
                         } else {
                           Navigator.push(context, MaterialPageRoute(builder: (_) => const ComingSoon()));
                         }
