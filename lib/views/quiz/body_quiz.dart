@@ -135,7 +135,7 @@ class _BodyQuizState extends State<BodyQuiz> {
                             height: 6,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(3),
-                              color: kLightPrimaryColor.withOpacity(0.8),
+                              color: kLightPrimaryColor,
                             ),
                             child: FractionallySizedBox(
                               alignment: Alignment.centerLeft,

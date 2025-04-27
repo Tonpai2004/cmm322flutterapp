@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../enroll mobile.dart';
 
 class WorkshopController {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // ฟังก์ชันสำหรับดึงข้อมูล workshop จาก Firestore
   Stream<List<WorkshopData>> getWorkshops() {

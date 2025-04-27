@@ -1,6 +1,4 @@
 import 'package:contentpagecmmapp/enroll%20mobile.dart';
-import 'package:contentpagecmmapp/enrolled.dart';
-import 'package:contentpagecmmapp/views/main/test-enroll2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'learnmore.dart';

@@ -426,7 +426,7 @@ class _ExpandableLessonTileState extends State<ExpandableLessonTile> {
               borderRadius: BorderRadius.circular(12.0),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
+                  color: Colors.grey,
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
