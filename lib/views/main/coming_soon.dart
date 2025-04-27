@@ -1,7 +1,12 @@
+import 'package:contentpagecmmapp/views/main/support_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'enrolled.dart';
 import '../main/homepage.dart';
 import '../main/learnmore.dart';
 import '../main/navbar.dart';
+import 'login.dart';
+import 'mockup_profile.dart';
 
 void main() {
   runApp(const MaterialApp(home: ComingSoon()));
@@ -16,9 +21,28 @@ class ComingSoon extends StatefulWidget {
 
 class _ComingSoonState extends State<ComingSoon> {
   bool _isMenuOpen = false;
-
   bool isLoggedIn = false;
   String profilePath = 'assets/images/grayprofile.png';
+
+  @override
+  void initState() {
+    super.initState();
+    checkLoginStatus();
+  }
+
+  void checkLoginStatus() async {
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      setState(() {
+        if (user != null) {
+          isLoggedIn = true;
+          profilePath = 'assets/images/default_profile.jpg'; // เปลี่ยนเป็นรูปโปรไฟล์เมื่อ login
+        } else {
+          isLoggedIn = false;
+          profilePath = 'assets/images/grayprofile.png'; // รูปที่ใช้ตอนไม่ได้ล็อกอิน
+        }
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,18 +64,43 @@ class _ComingSoonState extends State<ComingSoon> {
                     setState(() => _isMenuOpen = false);
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
                   },
-                  onMyCourses: () {},
-                  onSupport: () {},
-                  onLogin: () => setState(() => isLoggedIn = true),
+                  onMyCourses: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));
+                  },
+                  onSupport: () {
+                    setState(() => _isMenuOpen = false);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const SupportPage()));
+                  },
+                  onLogin: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginRegisterPage(showLogin: true),
+                      ),
+                    );
+                  },
                   onRegister: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const LearnMorePage())); // Will change it later //
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginRegisterPage(showRegister: true),
+                      ),
+                    );
                   },
-                  isLoggedIn: isLoggedIn, // true / false
-                  profileImagePath: profilePath, // เช่น 'assets/images/user_avatar.jpg'
+                  isLoggedIn: isLoggedIn,
+                  profileImagePath: profilePath,
                   onProfileTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const MockProfilePage()),
+                    );
                   },
-                  onLogout: () => setState(() => isLoggedIn = false),
+                  onLogout: () async {
+                    await FirebaseAuth.instance.signOut();
+                    setState(() {
+                      isLoggedIn = false;
+                    });
+                  },
                 ),
 
                 Expanded(

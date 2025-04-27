@@ -1,6 +1,11 @@
-import 'package:contentpagecmmapp/enroll%20mobile.dart';
+import 'package:contentpagecmmapp/views/main/enroll%20mobile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'enroll.dart';
+import 'enrolled.dart';
+import '../../firebase_options.dart';
 import 'learnmore.dart';
 import 'login.dart';
 import 'mockup_profile.dart';
@@ -10,13 +15,19 @@ import 'navbar.dart';
 import 'footer.dart';
 
 
-void main() {
-  runApp(MaterialApp(
-      theme: ThemeData(
-        fontFamily: 'Inter',
-      ),
-      home: HomePage()));
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(
+    GetMaterialApp(  // ใช้ GetMaterialApp แทน MaterialApp
+      theme: ThemeData(fontFamily: 'Inter'),
+      home: HomePage(),  // หรือหน้าหลักที่คุณต้องการ
+    ),
+  );
 }
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -103,7 +114,7 @@ class _RenewMainPageState extends State<HomePage> {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
                   },
                   onMyCourses: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrollMobile()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));
                   },
                   onSupport: () {
                     setState(() => _isMenuOpen = false);
@@ -375,7 +386,7 @@ class _RenewMainPageState extends State<HomePage> {
                     return InkWell(
                       onTap: () {
                         if (index == 0) {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const LearnMorePage()));
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const Enroll()));
                         } else {
                           Navigator.push(context, MaterialPageRoute(builder: (_) => const ComingSoon()));
                         }

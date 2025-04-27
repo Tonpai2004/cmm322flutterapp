@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../enroll mobile.dart';
+import '../views/main/enroll mobile.dart';
 
 class WorkshopController {
 

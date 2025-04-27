@@ -1,31 +1,33 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:contentpagecmmapp/views/main/support_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-import '../views/main/homepage.dart';
-import '../views/main/login.dart';
-import '../views/main/mockup_profile.dart';
-import '../views/main/support_page.dart';
-import '../views/main/navbar.dart';
-import '../views/main/footer.dart';
 import 'enrolled.dart';
+import 'footer.dart';
+import 'homepage.dart';
+import 'login.dart';
+import 'mockup_profile.dart';
+import 'navbar.dart';
 
 void main() {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     theme: ThemeData(fontFamily: 'Inter'),
-    home: Enroll(),
+    home: Enroll_forView(),
   ));
 }
 
-class Enroll extends StatefulWidget {
-  const Enroll({super.key});
+class Enroll_forView extends StatefulWidget {
+  const Enroll_forView({super.key});
 
   @override
-  State<Enroll> createState() => _EnrollState();
+  State<Enroll_forView> createState() => _EnrollViewsState();
 }
 
-class _EnrollState extends State<Enroll> {
+class _EnrollViewsState extends State<Enroll_forView> {
   bool _isMenuOpen = false;
   bool isLoggedIn = false;
   String profilePath = 'assets/images/Recording_room.jpg';
@@ -51,18 +53,40 @@ class _EnrollState extends State<Enroll> {
   void initState() {
     super.initState();
     checkLoginStatus();
+    fetchAndSaveStudentId(); // เรียกใช้ฟังก์ชันนี้เพื่อลงทะเบียน studentId
+  }
+
+  Future<void> fetchAndSaveStudentId() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final firestore = FirebaseFirestore.instance;
+
+      final querySnapshot = await firestore
+          .collection('students')
+          .where('email', isEqualTo: user.email) // หรือหาโดย email ก็ได้ ถ้ามี field email ใน students
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final studentDoc = querySnapshot.docs.first;
+        final studentId = studentDoc['studentId'];
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('studentId', studentId);
+      }
+    }
   }
 
   void checkLoginStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool? loggedIn = prefs.getBool('isLoggedIn');
-    String? storedProfilePath = prefs.getString('profileImagePath');
-
-    setState(() {
-      isLoggedIn = loggedIn ?? false;
-      if (storedProfilePath != null && storedProfilePath.isNotEmpty) {
-        profilePath = storedProfilePath;
-      }
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      setState(() {
+        if (user != null) {
+          isLoggedIn = true;
+          profilePath = 'assets/images/default_profile.jpg'; // เปลี่ยนเป็นรูปโปรไฟล์เมื่อ login
+        } else {
+          isLoggedIn = false;
+          profilePath = 'assets/images/grayprofile.png'; // รูปที่ใช้ตอนไม่ได้ล็อกอิน
+        }
+      });
     });
   }
 
@@ -115,8 +139,7 @@ class _EnrollState extends State<Enroll> {
                   );
                 },
                 onLogout: () async {
-                  SharedPreferences prefs = await SharedPreferences.getInstance();
-                  await prefs.remove('isLoggedIn');
+                  await FirebaseAuth.instance.signOut();
                   setState(() {
                     isLoggedIn = false;
                   });
@@ -147,21 +170,14 @@ class _EnrollState extends State<Enroll> {
                     Container(
                       child: ElevatedButton(
                         onPressed: () async {
-                          SharedPreferences prefs = await SharedPreferences.getInstance();
-                          bool? loggedIn = prefs.getBool('isLoggedIn');
+                          if (isLoggedIn) {
+                            SharedPreferences prefs = await SharedPreferences.getInstance();
+                            String? studentId = prefs.getString('studentId'); // ดึง studentId จาก SharedPreferences
 
-                          if (loggedIn == true) {
-                            // บันทึกคอร์สว่าได้ลงทะเบียนแล้ว
-                            List<String> courses = prefs.getStringList('enrolledCourses') ?? [];
-                            if (!courses.contains('CMM214')) {
-                              courses.add('CMM214');
-                              await prefs.setStringList('enrolledCourses', courses);
+                            if (studentId != null) {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));
                             }
-
-                            // ย้ายไปหน้า EnrolledPage
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));
                           } else {
-                            // ยังไม่ได้ Login -> ไปหน้า Login ก่อน
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => const LoginRegisterPage(showLogin: true)),
@@ -173,9 +189,8 @@ class _EnrollState extends State<Enroll> {
                           padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 18),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                         ),
-                        child: const Text('Register the course', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold,color: Colors.white)),
+                        child: const Text('Go to the course', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold,color: Colors.white)),
                       ),
-
                     ),
                   ],
                 ),

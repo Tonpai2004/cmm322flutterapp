@@ -2,7 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../controllers/progress_controller.dart';
+import 'enrolled.dart';
 import 'maincontent_video.dart';
+
+import 'package:flutter/services.dart' show rootBundle; //เผื่อไว้สำหรับแก้ตอนเปิด pdf แบบ emulator
+import 'package:path_provider/path_provider.dart'; //เผื่อไว้สำหรับแก้ตอนเปิด pdf แบบ emulator
+import 'package:open_filex/open_filex.dart'; //เผื่อไว้สำหรับแก้ตอนเปิด pdf แบบ emulator
+import 'dart:io'; //เผื่อไว้สำหรับแก้ตอนเปิด pdf แบบ emulator
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'homepage.dart';
 import 'login.dart';
@@ -10,6 +18,30 @@ import 'mockup_profile.dart';
 import 'support_page.dart';
 import 'navbar.dart';
 import 'footer.dart';
+
+Future<void> openDocs() async {
+  if (kIsWeb) {
+    // ถ้าเป็น Web
+    final url = Uri.parse('assets/docs/cmm214_exampledoc.pdf');
+    if (!await launchUrl(url, webOnlyWindowName: '_blank')) {
+      throw 'Could not launch $url';
+    }
+  } else {
+    // ถ้าเป็น Android/iOS/Desktop
+    // 1. ดึงไฟล์จาก asset
+    final bytes = await rootBundle.load('assets/docs/cmm214_exampledoc.pdf');
+    final list = bytes.buffer.asUint8List();
+
+    // 2. สร้างไฟล์ชั่วคราว
+    final tempDir = await getTemporaryDirectory();
+    final file = await File('${tempDir.path}/cmm214_exampledoc.pdf').create();
+    await file.writeAsBytes(list);
+
+    // 3. เปิดไฟล์ด้วย open_filex
+    await OpenFilex.open(file.path);
+  }
+}
+
 
 class MainContentPage extends StatefulWidget {
   final String lessonId;
@@ -54,12 +86,12 @@ class _MainContentPageState extends State<MainContentPage> {
         if (user != null) {
           isLoggedIn = true;
           profilePath =
-              'assets/images/default_profile.jpg'; // Update profile image after login
+          'assets/images/default_profile.jpg'; // Update profile image after login
         } else {
           isLoggedIn = false;
           profilePath =
-              'assets/images/grayprofile.png'; // Default image before login
-          print('User is not logged in ja');
+          'assets/images/grayprofile.png'; // Default image before login
+          print('User is not logged in yet.');
         }
       });
       loadProgress(); // Call loadProgress after the authState has been updated
@@ -74,14 +106,14 @@ class _MainContentPageState extends State<MainContentPage> {
       try {
         // Fetch studentId from Firestore or other data source linked to the user
         final userDoc =
-            await FirebaseFirestore.instance
-                .collection('students')
-                .doc(userId)
-                .get();
+        await FirebaseFirestore.instance
+            .collection('students')
+            .doc(userId)
+            .get();
         if (userDoc.exists) {
           final studentId =
-              userDoc
-                  .data()?['studentId']; // Assuming 'studentId' is a field in the user document
+          userDoc
+              .data()?['studentId']; // Assuming 'studentId' is a field in the user document
 
           if (studentId != null) {
             print('Student ID: $studentId'); // Print studentId to check
@@ -134,6 +166,8 @@ class _MainContentPageState extends State<MainContentPage> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 876;
 
+    final void Function(int index)? onVideoWatched;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF3FFFE),
       body: SafeArea(
@@ -147,25 +181,20 @@ class _MainContentPageState extends State<MainContentPage> {
               toggleMenu: () => setState(() => _isMenuOpen = !_isMenuOpen),
               goToHome: () {
                 setState(() => _isMenuOpen = false);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HomePage()),
-                );
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
               },
-              onMyCourses: () {},
+              onMyCourses: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));
+              },
               onSupport: () {
                 setState(() => _isMenuOpen = false);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SupportPage()),
-                );
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const SupportPage()));
               },
               onLogin: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder:
-                        (context) => const LoginRegisterPage(showLogin: true),
+                    builder: (context) => const LoginRegisterPage(showLogin: true),
                   ),
                 );
               },
@@ -173,9 +202,7 @@ class _MainContentPageState extends State<MainContentPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder:
-                        (context) =>
-                            const LoginRegisterPage(showRegister: true),
+                    builder: (context) => const LoginRegisterPage(showRegister: true),
                   ),
                 );
               },
@@ -184,9 +211,7 @@ class _MainContentPageState extends State<MainContentPage> {
               onProfileTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const MockProfilePage(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const MockProfilePage()),
                 );
               },
               onLogout: () async {
@@ -198,12 +223,10 @@ class _MainContentPageState extends State<MainContentPage> {
             ),
 
             // Course Title
+            // หัวข้อ Course
             Container(
               color: const Color(0xFFCFFFFA),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 14.0,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
               child: const Text(
                 '3D ANIMATION FUNDAMENTALS',
                 style: TextStyle(
@@ -214,21 +237,18 @@ class _MainContentPageState extends State<MainContentPage> {
               ),
             ),
 
-            // Main Content
+            // กรอบหลัก
             Expanded(
               child: SingleChildScrollView(
                 child: Container(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 10.0,
-                  ),
+                  margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Column(
                     children: [
-                      // Header Section
+                      // ส่วนหัว
                       Container(
                         padding: const EdgeInsets.all(16.0),
                         decoration: BoxDecoration(
@@ -245,13 +265,39 @@ class _MainContentPageState extends State<MainContentPage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text(
-                                  'Subject',
+                                  'CMM214 Animation Fundamental',
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                     color: Color(0xFF202D61),
                                   ),
                                 ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            const Text(
+                              'Progress in Studying',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFF2866A5),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  flex: 6,
+                                  child: Container(
+                                    height: 14,
+                                    child: LinearProgressIndicator(
+                                      value: progress, // <-- ใช้ค่าจากตัวแปร progress ที่อัปเดตทุกครั้งที่ดูวิดีโอ
+                                      backgroundColor: const Color(0xFFD9D9D9),
+                                      color: const Color(0xFFFFFFFF),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFCFFFFA),
@@ -261,34 +307,16 @@ class _MainContentPageState extends State<MainContentPage> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
-                                  onPressed: () {},
-                                  child: const Text('เรียนต่อ'),
+                                  onPressed: openDocs, // เปลี่ยนจาก openPdfWeb() เป็น openDocs
+                                  child: const Text('Download PDF'),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 10),
-                            const Text(
-                              'ความคืบหน้าในการเรียน',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Color(0xFF2866A5),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            LinearProgressIndicator(
-                              value: progress,
-                              minHeight: 12,
-                              backgroundColor: Colors.grey[300],
-                              valueColor: const AlwaysStoppedAnimation<Color>(
-                                Colors.green,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
                           ],
                         ),
                       ),
 
-                      // Lesson List
+                      // รายชื่อบทเรียน
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16.0),
@@ -302,76 +330,73 @@ class _MainContentPageState extends State<MainContentPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: List.generate(4, (index) {
-                            // ✅ Define video content with links
+                            // ✅ กำหนดข้อมูล video พร้อมลิงก์
                             List<Map<String, String>> videoList;
 
                             if (index == 0) {
                               videoList = [
                                 {
-                                  'title': 'คลิปที่ 1: Make An Eye Socket!',
-                                  'duration': '27:22 นาที',
-                                  'url':
-                                      'https://www.youtube.com/watch?v=1D0jAfm18rw',
+                                  'title': 'Clip 1: Make An Eye Socket!',
+                                  'duration': '27:22 Minutes',
+                                  'url': 'https://www.youtube.com/watch?v=1D0jAfm18rw',
                                 },
                                 {
-                                  'title': 'คลิปที่ 2: Tentacle and Eyeball',
-                                  'duration': '33:10 นาที',
-                                  'url':
-                                      'https://www.youtube.com/watch?v=LMqxMvmwK48',
+                                  'title': 'Clip 2: Tentacle and Eyeball',
+                                  'duration': '33:10 Minutes',
+                                  'url': 'https://www.youtube.com/watch?v=LMqxMvmwK48'
                                 },
                                 {
-                                  'title': 'แบบทดสอบท้ายบท',
-                                  'duration': '10 ข้อ',
+                                  'title': 'Post Test',
+                                  'duration': '10 points'
                                 },
                               ];
                             } else if (index == 1) {
                               videoList = [
                                 {
-                                  'title': 'คลิปที่ 1: Make UV',
-                                  'duration': '16:27 นาที',
-                                  'url':
-                                      'https://www.youtube.com/watch?v=4slG1ALyjAw',
+                                  'title': 'Clip 1: Make UV',
+                                  'duration': '16:27 Minutes',
+                                  'url': 'https://www.youtube.com/watch?v=4slG1ALyjAw'
                                 },
                                 {
-                                  'title': 'แบบทดสอบท้ายบท',
-                                  'duration': '10 ข้อ',
+                                  'title': 'Post Test',
+                                  'duration': '10 points'
                                 },
                               ];
                             } else if (index == 2) {
                               videoList = [
                                 {
-                                  'title': 'คลิปที่ 1: Texture Substance',
-                                  'duration': '13:20 นาที',
-                                  'url':
-                                      'https://www.youtube.com/watch?v=DDFRPFnCPc8',
+                                  'title': 'Clip 1: Texture Substance',
+                                  'duration': '13:20 Minutes',
+                                  'url': 'https://www.youtube.com/watch?v=DDFRPFnCPc8'
                                 },
                                 {
-                                  'title': 'แบบทดสอบท้ายบท',
-                                  'duration': '10 ข้อ',
+                                  'title': 'Post Test',
+                                  'duration': '10 points'
                                 },
                               ];
                             } else if (index == 3) {
                               videoList = [
                                 {
-                                  'title': 'คลิปที่ 1: Light & Render',
-                                  'duration': '16:10 นาที',
-                                  'url':
-                                      'https://www.youtube.com/watch?v=IVTZP9dmzxM',
+                                  'title': 'Clip 1: Light & Render',
+                                  'duration': '16:10 Minutes',
+                                  'url': 'https://www.youtube.com/watch?v=IVTZP9dmzxM'
                                 },
                                 {
-                                  'title': 'แบบทดสอบท้ายบท',
-                                  'duration': '10 ข้อ',
+                                  'title': 'Post Test',
+                                  'duration': '10 points'
                                 },
                               ];
                             } else {
-                              videoList =
-                                  []; // Placeholder in case more lessons are added
+                              videoList = []; // เผื่อไว้ในกรณีที่เพิ่มเกิน 4 บท
                             }
 
                             return ExpandableLessonTile(
-                              lessonTitle: 'บทที่ ${index + 1}',
+                              lessonTitle: 'Chapter ${index + 1}',
                               videos: videoList,
                               chapterNumber: index + 1,
+                              onVideoWatched: (chapterNumber) {
+                                updateProgress(chapterNumber); // call ตัวที่มีใน MainContentPage
+                              },
                             );
                           }),
                         ),
@@ -396,12 +421,15 @@ class ExpandableLessonTile extends StatefulWidget {
   final int chapterNumber;
   final List<Map<String, String>> videos;
 
-  const ExpandableLessonTile({
-    super.key,
+  final void Function(int index)? onVideoWatched;
+
+  ExpandableLessonTile({
+    Key? key,
     required this.lessonTitle,
     required this.videos,
     required this.chapterNumber,
-  });
+    this.onVideoWatched,
+  }) : super(key: key);
 
   @override
   State<ExpandableLessonTile> createState() => _ExpandableLessonTileState();
@@ -447,6 +475,7 @@ class _ExpandableLessonTileState extends State<ExpandableLessonTile> {
         ),
         if (isExpanded)
           Container(
+            margin: EdgeInsets.symmetric(vertical: 16),
             width: double.infinity,
             decoration: const BoxDecoration(
               color: Colors.white,
@@ -458,49 +487,50 @@ class _ExpandableLessonTileState extends State<ExpandableLessonTile> {
             ),
             child: Column(
               children:
-                  widget.videos.map((video) {
-                    return InkWell(
-                      onTap: () {
-                        if (video['title'] != 'แบบทดสอบท้ายบท') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (_) => MainContentVideoPage(
-                                    videoTitle: video['title']!,
-                                    videoUrl:
-                                        video['url'] ??
-                                        '', // Prevent null error
-                                    chapter: widget.lessonTitle,
-                                  ),
-                            ),
-                          );
-                        }
-                      },
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                video['title']!,
-                                style: const TextStyle(fontSize: 15),
-                              ),
-                              Text(
-                                video['duration']!,
-                                style: const TextStyle(fontSize: 14),
-                              ),
-                            ],
+              widget.videos.map((video) {
+                return InkWell(
+                  onTap: () {
+                    if (video['title'] != 'Post Test') {
+                      widget.onVideoWatched?.call(widget.chapterNumber);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (_) => MainContentVideoPage(
+                            videoTitle: video['title']!,
+                            videoUrl:
+                            video['url'] ??
+                                '', // Prevent null error
+                            chapter: widget.lessonTitle,
                           ),
-                          const Divider(
-                            height: 20,
-                            thickness: 1,
-                            color: Color(0xFFE0E0E0),
+                        ),
+                      );
+                    }
+                  },
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            video['title']!,
+                            style: const TextStyle(fontSize: 15),
+                          ),
+                          Text(
+                            video['duration']!,
+                            style: const TextStyle(fontSize: 14),
                           ),
                         ],
                       ),
-                    );
-                  }).toList(),
+                      const Divider(
+                        height: 20,
+                        thickness: 1,
+                        color: Color(0xFFE0E0E0),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
             ),
           ),
         const SizedBox(height: 12.0),

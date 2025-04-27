@@ -1,5 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'enrolled.dart';
 import 'homepage.dart';
+import 'mockup_profile.dart';
 import 'support_page.dart';
 import 'navbar.dart';
 import '../../controllers/auth_controller.dart';
@@ -113,25 +116,20 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
               toggleMenu: () => setState(() => _isMenuOpen = !_isMenuOpen),
               goToHome: () {
                 setState(() => _isMenuOpen = false);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HomePage()),
-                );
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
               },
-              onMyCourses: () {},
+              onMyCourses: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));
+              },
               onSupport: () {
                 setState(() => _isMenuOpen = false);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SupportPage()),
-                );
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const SupportPage()));
               },
               onLogin: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder:
-                        (context) => const LoginRegisterPage(showLogin: true),
+                    builder: (context) => const LoginRegisterPage(showLogin: true),
                   ),
                 );
               },
@@ -139,9 +137,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder:
-                        (context) =>
-                            const LoginRegisterPage(showRegister: true),
+                    builder: (context) => const LoginRegisterPage(showRegister: true),
                   ),
                 );
               },
@@ -150,14 +146,13 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
               onProfileTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const HomePage()),
+                  MaterialPageRoute(builder: (context) => const MockProfilePage()),
                 );
               },
               onLogout: () async {
-                await authController.logout();
+                await FirebaseAuth.instance.signOut();
                 setState(() {
                   isLoggedIn = false;
-                  profilePath = 'assets/images/grayprofile.png';
                 });
               },
             ),
@@ -277,7 +272,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black,
+                                    color: Colors.black.withOpacity(0.4),
                                     blurRadius: 8,
                                   ),
                                 ],
