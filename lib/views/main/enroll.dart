@@ -13,6 +13,7 @@ import '../../../views/main/support_page.dart';
 import '../../../views/main/navbar.dart';
 import '../../../views/main/footer.dart';
 import '../../firebase_options.dart';
+import 'enroll mobile.dart';
 import 'enrolled.dart';
 
 void main() async {
@@ -115,6 +116,9 @@ class _EnrollState extends State<Enroll> {
                 goToHome: () {
                   setState(() => _isMenuOpen = false);
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+                },
+                onSearch: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrollMobile()));
                 },
                 onMyCourses: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));

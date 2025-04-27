@@ -12,6 +12,7 @@ import 'dart:io'; //เผื่อไว้สำหรับแก้ตอน
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+import 'enroll mobile.dart';
 import 'enrolled.dart';
 import '../../firebase_options.dart';
 import '../quiz/quiz_screen.dart';
@@ -265,6 +266,9 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
               goToHome: () {
                 setState(() => _isMenuOpen = false);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+              },
+              onSearch: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrollMobile()));
               },
               onMyCourses: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));

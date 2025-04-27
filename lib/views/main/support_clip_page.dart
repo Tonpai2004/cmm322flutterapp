@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'enroll mobile.dart';
 import 'enrolled.dart';
 import 'homepage.dart';
 import 'login.dart';
@@ -92,6 +93,9 @@ class _SupportClipPageState extends State<SupportClipPage> {
                   goToHome: () {
                     setState(() => _isMenuOpen = false);
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+                  },
+                  onSearch: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrollMobile()));
                   },
                   onMyCourses: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));

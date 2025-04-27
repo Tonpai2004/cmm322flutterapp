@@ -1,6 +1,7 @@
 import 'package:contentpagecmmapp/views/main/support_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'enroll mobile.dart';
 import 'enrolled.dart';
 import '../main/homepage.dart';
 import '../main/learnmore.dart';
@@ -63,6 +64,9 @@ class _ComingSoonState extends State<ComingSoon> {
                   goToHome: () {
                     setState(() => _isMenuOpen = false);
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+                  },
+                  onSearch: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrollMobile()));
                   },
                   onMyCourses: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));

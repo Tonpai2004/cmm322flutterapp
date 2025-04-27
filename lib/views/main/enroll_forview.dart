@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
+import 'enroll mobile.dart';
 import 'enrolled.dart';
 import 'footer.dart';
 import 'homepage.dart';
@@ -109,7 +110,12 @@ class _EnrollViewsState extends State<Enroll_forView> {
                   setState(() => _isMenuOpen = false);
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
                 },
-                onMyCourses: () {},
+                onSearch: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrollMobile()));
+                },
+                onMyCourses: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));
+                },
                 onSupport: () {
                   setState(() => _isMenuOpen = false);
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const SupportPage()));

@@ -5,6 +5,7 @@ class ResponsiveNavbar extends StatelessWidget {
   final bool isMenuOpen;
   final VoidCallback toggleMenu;
   final VoidCallback goToHome;
+  final VoidCallback? onSearch;
   final VoidCallback? onMyCourses;
   final VoidCallback? onSupport;
   final VoidCallback? onLogin;
@@ -20,6 +21,7 @@ class ResponsiveNavbar extends StatelessWidget {
     required this.isMenuOpen,
     required this.toggleMenu,
     required this.goToHome,
+    this.onSearch,
     this.onMyCourses,
     this.onSupport,
     this.onLogin,
@@ -46,6 +48,10 @@ class ResponsiveNavbar extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(top: 5.75),
                   child: _navButton('Home', onTap: goToHome),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 5.75),
+                  child: _navButton('Search', onTap: onSearch),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 5.75),
@@ -141,6 +147,7 @@ class ResponsiveNavbar extends StatelessWidget {
                   _actionButton('Logout', mobile: true, onTap: onLogout),
                 ],
                 _navButton('Home', mobile: true, onTap: goToHome),
+                _navButton('Search', mobile: true, onTap: onSearch),
                 _navButton('My Courses', mobile: true, onTap: onMyCourses),
                 _navButton('Support', mobile: true, onTap: onSupport),
 

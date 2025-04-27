@@ -13,6 +13,7 @@ import '../../../views/main/support_page.dart';
 import '../../../views/main/navbar.dart';
 import '../../../views/main/footer.dart';
 import '../../firebase_options.dart';
+import 'enroll mobile.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -180,8 +181,10 @@ class _EnrolledPageState extends State<EnrolledPage> {
                   setState(() => _isMenuOpen = false);
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
                 },
+                onSearch: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrollMobile()));
+                },
                 onMyCourses: () {
-                  setState(() => _isMenuOpen = false);
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));
                 },
                 onSupport: () {
@@ -214,11 +217,8 @@ class _EnrolledPageState extends State<EnrolledPage> {
                 },
                 onLogout: () async {
                   await FirebaseAuth.instance.signOut();
-                  SharedPreferences prefs = await SharedPreferences.getInstance();
-                  await prefs.remove('enrolledCourses');
                   setState(() {
                     isLoggedIn = false;
-                    enrolledCourses = [];
                   });
                 },
               ),

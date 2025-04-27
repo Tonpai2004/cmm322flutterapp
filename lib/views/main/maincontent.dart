@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../controllers/progress_controller.dart';
+import 'enroll mobile.dart';
 import 'enrolled.dart';
 import 'maincontent_video.dart';
 
@@ -104,48 +105,36 @@ class _MainContentPageState extends State<MainContentPage> {
       print('User ID: $userId, Lesson ID: ${widget.lessonId}');
 
       try {
-        // Fetch studentId from Firestore or other data source linked to the user
-        final userDoc =
-        await FirebaseFirestore.instance
+        final userDoc = await FirebaseFirestore.instance
             .collection('students')
             .doc(userId)
             .get();
+
         if (userDoc.exists) {
-          final studentId =
-          userDoc
-              .data()?['studentId']; // Assuming 'studentId' is a field in the user document
+          final studentId = userDoc.data()?['studentId'];
 
           if (studentId != null) {
-            print('Student ID: $studentId'); // Print studentId to check
+            print('Student ID: $studentId');
 
             // Fetch progress data using studentId and lessonId
             final progressData = await progressController.getProgress(
               studentId,
               widget.lessonId,
             );
-            print(
-              'Progress Data: $progressData',
-            ); // Print the progressData received from controller
+
+            print('Progress Data: $progressData');
 
             if (progressData != null) {
-              print(
-                'Progress: ${progressData.progress}',
-              ); // Print the progress value
-
               setState(() {
-                progress =
-                    progressData
-                        .progress; // Access progress value from ProgressModel
-                watchedVideos.add(
-                  progressData.progress.toInt(),
-                ); // Store the watched progress
+                progress = progressData.progress;
+                watchedVideos.add(progressData.progress.toInt());
               });
-
-              print(
-                'Progress updated: $progress',
-              ); // Print updated progress in setState
+              print('Progress updated: $progress');
             } else {
-              print('No progress data found'); // Print if no data is returned
+              setState(() {
+                progress = 0.0; // Reset progress to 0 if no data is found
+              });
+              print('No progress data found');
             }
           } else {
             print('No studentId found for the user');
@@ -155,11 +144,18 @@ class _MainContentPageState extends State<MainContentPage> {
         }
       } catch (e) {
         print('Error fetching studentId: $e');
+        setState(() {
+          progress = 0.0; // Reset progress to 0 if an error occurs
+        });
       }
     } else {
-      print('User is not logged in'); // Print if the user is not logged in
+      print('User is not logged in');
+      setState(() {
+        progress = 0.0; // Reset progress to 0 if not logged in
+      });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -182,6 +178,9 @@ class _MainContentPageState extends State<MainContentPage> {
               goToHome: () {
                 setState(() => _isMenuOpen = false);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+              },
+              onSearch: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrollMobile()));
               },
               onMyCourses: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));

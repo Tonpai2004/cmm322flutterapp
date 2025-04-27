@@ -113,6 +113,9 @@ class _RenewMainPageState extends State<HomePage> {
                     setState(() => _isMenuOpen = false);
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
                   },
+                  onSearch: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrollMobile()));
+                  },
                   onMyCourses: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));
                   },
@@ -279,14 +282,22 @@ class _RenewMainPageState extends State<HomePage> {
                               children: [
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: const [
-                                    Text(
+                                  children: [
+                                    const Text(
                                       'Subject Category',
                                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, fontFamily: 'Inter'),
                                     ),
-                                    Text(
-                                      'ALL',
-                                      style: TextStyle(fontSize: 16, fontFamily: 'Inter'),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => EnrollMobile()), // ใส่หน้าที่ต้องการไป
+                                        );
+                                      },
+                                      child: const Text(
+                                        'ALL',
+                                        style: TextStyle(fontSize: 16, fontFamily: 'Inter', color: Colors.blue), // ใส่สีให้ดูเหมือนกดได้
+                                      ),
                                     ),
                                   ],
                                 ),

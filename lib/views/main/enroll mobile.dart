@@ -1,7 +1,18 @@
 import 'package:contentpagecmmapp/views/main/maincontent.dart';
+import 'package:contentpagecmmapp/views/main/support_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
 
 import '../../controllers/workshop_controller.dart';
+import '../../firebase_options.dart';
+import 'enrolled.dart';
+import 'homepage.dart';
+import 'enroll.dart';
+import 'login.dart';
+import 'mockup_profile.dart';
+import 'navbar.dart';
 
 class WorkshopData {
   final String subject;
@@ -19,14 +30,17 @@ class WorkshopData {
   });
 }
 
-void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    theme: ThemeData(
-      fontFamily: 'Inter',
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(
+    GetMaterialApp(  // ใช้ GetMaterialApp แทน MaterialApp
+      theme: ThemeData(fontFamily: 'Inter'),
+      home: EnrollMobile(),
     ),
-    home: EnrollMobile(),
-  ));
+  );
 }
 
 class EnrollMobile extends StatefulWidget {
@@ -51,8 +65,33 @@ class _EnrollMobileState extends State<EnrollMobile> {
     });
   }
 
+  bool _isMenuOpen = false;
+  bool isLoggedIn = false;
+  String profilePath = 'assets/images/grayprofile.png';
+
+  @override
+  void initState() {
+    super.initState();
+
+    // ฟังการเปลี่ยนแปลงของสถานะผู้ใช้จาก Firebase
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      setState(() {
+        if (user != null) {
+          isLoggedIn = true;
+          profilePath = 'assets/images/default_profile.jpg'; // เปลี่ยนเป็นรูปโปรไฟล์เมื่อ login
+        } else {
+          isLoggedIn = false;
+          profilePath = 'assets/images/grayprofile.png'; // รูปที่ใช้ตอนไม่ได้ล็อกอิน
+        }
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 876;
+
     return Scaffold(
       backgroundColor: const Color(0xFFCFFFFA),
       body: Stack(
@@ -102,123 +141,7 @@ class _EnrollMobileState extends State<EnrollMobile> {
                         });
                       },
                     ),
-                    CheckboxListTile(
-                      title: const Text("Upcomimg", style: TextStyle(color: Colors.white)),
-                      value: _option2,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          _option2 = value ?? false;
-                        });
-                      },
-                    ),
-                    CheckboxListTile(
-                      title: const Text("Subject categories", style: TextStyle(color: Colors.white)),
-                      value: _option2,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          _option2 = value ?? false;
-                        });
-                      },
-                    ),
-                    CheckboxListTile(
-                      title: const Text("IOT & DEV", style: TextStyle(color: Colors.white)),
-                      value: _option2,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          _option2 = value ?? false;
-                        });
-                      },
-                    ),
-                    CheckboxListTile(
-                      title: const Text("ANIMATION", style: TextStyle(color: Colors.white)),
-                      value: _option2,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          _option2 = value ?? false;
-                        });
-                      },
-                    ),
-                    CheckboxListTile(
-                      title: const Text("PRODUCTION", style: TextStyle(color: Colors.white)),
-                      value: _option2,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          _option2 = value ?? false;
-                        });
-                      },
-                    ),
-                    CheckboxListTile(
-                      title: const Text("GRAPHICS", style: TextStyle(color: Colors.white)),
-                      value: _option2,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          _option2 = value ?? false;
-                        });
-                      },
-                    ),
-                    CheckboxListTile(
-                      title: const Text("BUSSINESS", style: TextStyle(color: Colors.white)),
-                      value: _option2,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          _option2 = value ?? false;
-                        });
-                      },
-                    ),
-                    CheckboxListTile(
-                      title: const Text("FORMAT", style: TextStyle(color: Colors.white)),
-                      value: _option2,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          _option2 = value ?? false;
-                        });
-                      },
-                    ),
-                    CheckboxListTile(
-                      title: const Text("TALK", style: TextStyle(color: Colors.white)),
-                      value: _option2,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          _option2 = value ?? false;
-                        });
-                      },
-                    ),
-                    CheckboxListTile(
-                      title: const Text("TALK & WORKSHOP", style: TextStyle(color: Colors.white)),
-                      value: _option2,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          _option2 = value ?? false;
-                        });
-                      },
-                    ),
-                    CheckboxListTile(
-                      title: const Text("LANGUAGE", style: TextStyle(color: Colors.white)),
-                      value: _option2,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          _option2 = value ?? false;
-                        });
-                      },
-                    ),
-                    CheckboxListTile(
-                      title: const Text("THAI", style: TextStyle(color: Colors.white)),
-                      value: _option2,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          _option2 = value ?? false;
-                        });
-                      },
-                    ),
-                    CheckboxListTile(
-                      title: const Text("ENGLISH", style: TextStyle(color: Colors.white)),
-                      value: _option2,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          _option2 = value ?? false;
-                        });
-                      },
-                    ),
+                    // ... (other filter options here)
                   ],
                 ),
               ),
@@ -230,31 +153,10 @@ class _EnrollMobileState extends State<EnrollMobile> {
             duration: _animationDuration,
             left: _isSidebarOpen ? sidebarWidth : 0,
             right: 0,
-            top: 0,
+            top: 80,
             bottom: 0,
             child: Scaffold(
               backgroundColor: const Color(0xFFCFFFFA),
-              appBar: AppBar(
-                backgroundColor: const Color(0xFF54EDDC),
-                elevation: 0,
-                toolbarHeight: 100,
-                titleSpacing: 0,
-                title: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Image.asset('assets/images/cmmlogo.png', height: 60),
-                      IconButton(
-                        icon: const Icon(Icons.menu, color: Colors.white, size: 45),
-                        onPressed: _toggleSidebar,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-
               body: StreamBuilder<List<WorkshopData>>(
                 stream: _workshopController.getWorkshops(),
                 builder: (context, snapshot) {
@@ -279,6 +181,62 @@ class _EnrollMobileState extends State<EnrollMobile> {
                   );
                 },
               ),
+            ),
+          ),
+
+          // Add Responsive Navbar here
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: ResponsiveNavbar(
+              isMobile: isMobile,
+              isMenuOpen: _isMenuOpen,
+              toggleMenu: () => setState(() => _isMenuOpen = !_isMenuOpen),
+              goToHome: () {
+                setState(() => _isMenuOpen = false);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+              },
+              onSearch: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrollMobile()));
+              },
+              onMyCourses: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));
+              },
+              onSupport: () {
+                setState(() => _isMenuOpen = false);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const SupportPage()));
+              },
+              onLogin: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginRegisterPage(showLogin: true),
+                  ),
+                );
+              },
+              onRegister: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginRegisterPage(showRegister: true),
+                  ),
+                );
+              },
+              isLoggedIn: isLoggedIn,
+              profileImagePath: profilePath,
+              onProfileTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MockProfilePage()),
+                );
+              },
+              onLogout: () async {
+                await FirebaseAuth.instance.signOut();
+                setState(() {
+                  isLoggedIn = false;
+                });
+              },
             ),
           ),
 
@@ -309,7 +267,7 @@ class _EnrollMobileState extends State<EnrollMobile> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => MainContentPage(lessonId: data.code,),
+                builder: (context) => Enroll(),
               ),
             );
           },
@@ -337,9 +295,11 @@ class _EnrollMobileState extends State<EnrollMobile> {
                         child: Image.network(
                           data.imageUrl, // ใส่ URL ของภาพที่ได้จาก data.imageUrl
                           fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 0),
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
@@ -369,7 +329,7 @@ class _EnrollMobileState extends State<EnrollMobile> {
                             ElevatedButton(
                               onPressed: () {},
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF46B69C),
+                                backgroundColor: const Color(0xFF4BC0B2),
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20),
@@ -390,6 +350,4 @@ class _EnrollMobileState extends State<EnrollMobile> {
       ],
     );
   }
-
-
 }
