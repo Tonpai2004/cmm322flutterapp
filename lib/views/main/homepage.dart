@@ -1,8 +1,6 @@
 import 'package:contentpagecmmapp/enroll%20mobile.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../enroll.dart';
-import '../../enrolled.dart';
 import 'learnmore.dart';
 import 'login.dart';
 import 'mockup_profile.dart';
@@ -31,24 +29,23 @@ class _RenewMainPageState extends State<HomePage> {
 
   bool _isMenuOpen = false;
   bool isLoggedIn = false;
-  String profilePath = 'assets/images/Recording_room.jpg';
+  String profilePath = 'assets/images/grayprofile.png';
 
   @override
   void initState() {
     super.initState();
-    checkLoginStatus(); // 👈 เรียกเช็คสถานะล็อกอิน
-  }
 
-  void checkLoginStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool? loggedIn = prefs.getBool('isLoggedIn');
-    String? storedProfilePath = prefs.getString('profileImagePath');
-
-    setState(() {
-      isLoggedIn = loggedIn ?? false;
-      if (storedProfilePath != null && storedProfilePath.isNotEmpty) {
-        profilePath = storedProfilePath;
-      }
+    // ฟังการเปลี่ยนแปลงของสถานะผู้ใช้จาก Firebase
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      setState(() {
+        if (user != null) {
+          isLoggedIn = true;
+          profilePath = 'assets/images/default_profile.jpg'; // เปลี่ยนเป็นรูปโปรไฟล์เมื่อ login
+        } else {
+          isLoggedIn = false;
+          profilePath = 'assets/images/grayprofile.png'; // รูปที่ใช้ตอนไม่ได้ล็อกอิน
+        }
+      });
     });
   }
 
@@ -106,8 +103,7 @@ class _RenewMainPageState extends State<HomePage> {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
                   },
                   onMyCourses: () {
-                    setState(() => _isMenuOpen = false);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrollMobile()));
                   },
                   onSupport: () {
                     setState(() => _isMenuOpen = false);
@@ -138,8 +134,7 @@ class _RenewMainPageState extends State<HomePage> {
                     );
                   },
                   onLogout: () async {
-                    SharedPreferences prefs = await SharedPreferences.getInstance();
-                    await prefs.remove('isLoggedIn');
+                    await FirebaseAuth.instance.signOut();
                     setState(() {
                       isLoggedIn = false;
                     });
@@ -380,7 +375,7 @@ class _RenewMainPageState extends State<HomePage> {
                     return InkWell(
                       onTap: () {
                         if (index == 0) {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const Enroll()));
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const LearnMorePage()));
                         } else {
                           Navigator.push(context, MaterialPageRoute(builder: (_) => const ComingSoon()));
                         }

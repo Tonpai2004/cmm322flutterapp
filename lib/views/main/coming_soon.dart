@@ -18,7 +18,7 @@ class _ComingSoonState extends State<ComingSoon> {
   bool _isMenuOpen = false;
 
   bool isLoggedIn = false;
-  String profilePath = 'assets/images/Recording_room.jpg';
+  String profilePath = 'assets/images/grayprofile.png';
 
   @override
   Widget build(BuildContext context) {

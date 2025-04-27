@@ -102,7 +102,7 @@ class ResponsiveNavbar extends StatelessWidget {
                     child: CircleAvatar(
                       backgroundImage: profileImagePath != null
                           ? AssetImage(profileImagePath!)
-                          : const AssetImage('assets/images/default_profile.png'),
+                          : const AssetImage('assets/images/default_profile.jpg'),
                       radius: 20,
                     ),
                   ),
@@ -133,7 +133,7 @@ class ResponsiveNavbar extends StatelessWidget {
                     child: CircleAvatar(
                       backgroundImage: profileImagePath != null
                           ? AssetImage(profileImagePath!)
-                          : const AssetImage('assets/images/default_profile.png'),
+                          : const AssetImage('assets/images/default_profile.jpg'),
                       radius: 30,
                     ),
                   ),
