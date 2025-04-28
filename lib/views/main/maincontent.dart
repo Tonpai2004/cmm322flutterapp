@@ -309,7 +309,7 @@ class _MainContentPageState extends State<MainContentPage> {
                                     ),
                                   ),
                                   onPressed: openDocs, // เปลี่ยนจาก openPdfWeb() เป็น openDocs
-                                  child: const Text('Download PDF'),
+                                  child: const Text('Download File'),
                                 ),
                               ],
                             ),
