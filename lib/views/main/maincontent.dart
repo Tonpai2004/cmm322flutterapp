@@ -56,6 +56,7 @@ class MainContentPage extends StatefulWidget {
 class _MainContentPageState extends State<MainContentPage> {
   bool _isMenuOpen = false;
   bool isLoggedIn = false;
+
   String profilePath = 'assets/images/grayprofile.png';
 
   final int totalVideos = 5;
