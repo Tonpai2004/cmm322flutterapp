@@ -12,6 +12,7 @@ import '../../../views/main/mockup_profile.dart';
 import '../../../views/main/support_page.dart';
 import '../../../views/main/navbar.dart';
 import '../../../views/main/footer.dart';
+import '../../controllers/progress_controller.dart';
 import '../../firebase_options.dart';
 import 'enroll mobile.dart';
 
@@ -39,6 +40,10 @@ class _EnrolledPageState extends State<EnrolledPage> {
   bool _isMenuOpen = false;
   bool isLoggedIn = false;
   String profilePath = 'assets/images/Recording_room.jpg';
+
+  final ProgressController progressController = ProgressController();
+  double progress = 0.0;
+  String lessonId = "FLTR101";
 
   List<Map<String, dynamic>> enrolledCourses = []; // เปลี่ยนเป็น list of map
 
@@ -132,6 +137,20 @@ class _EnrolledPageState extends State<EnrolledPage> {
     }
   }
 
+  void resetProgress() {
+    setState(() {// ลบรายการที่ดูแล้ว
+      progress = 0.0;         // รีเซ็ต progress
+    });
+
+    // หากมีการบันทึก progress ใน Firestore ให้รีเซ็ตข้อมูลใน Firestore
+    if (isLoggedIn) {
+
+      final userId = FirebaseAuth.instance.currentUser!.uid;
+      progressController.saveProgress(userId, lessonId, progress);
+    }
+  }
+
+
   void cancelEnrollment(String courseId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? studentId = prefs.getString('studentId');
@@ -159,6 +178,7 @@ class _EnrolledPageState extends State<EnrolledPage> {
     } else {
       print('Student ID not found.');
     }
+    resetProgress();
   }
 
   @override
