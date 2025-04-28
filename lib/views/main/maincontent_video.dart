@@ -99,6 +99,8 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
 
   bool _isMenuOpen = false;
   bool isLoggedIn = false;
+  bool hasShownPopup = false;
+  bool isNavigatedFromButton = false; // ✅ เพิ่มตัวแปร flag
   String profilePath = 'assets/images/grayprofile.png';
 
   YoutubePlayerController? _youtubeController;
@@ -114,7 +116,6 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
     final currentVideoId = YoutubePlayer.convertUrlToId(widget.videoUrl);
     debugPrint('Video ID = $currentVideoId'); // ช่วย debug ได้มาก
 
-    // เทียบจาก videoId แทนเพื่อกันกรณี URL มีพารามิเตอร์แปลกๆ
     currentIndex = videoList.indexWhere((v) =>
     YoutubePlayer.convertUrlToId(v.url) == currentVideoId &&
         v.chapter == widget.chapter);
@@ -129,6 +130,30 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
           enableCaption: true,
         ),
       );
+    }
+
+    goToQuizScreenIfNeeded(); // ✅ เพิ่มมาท้ายสุดของ initState
+  }
+
+  void goToQuizScreenIfNeeded() {
+    if (!isNavigatedFromButton) return; // ✅ ถ้าไม่ได้มาจากปุ่ม Next/Prev ก็ไม่ต้องเด้ง
+
+    if (currentIndex == 1) { // Chapter 1 วิดีโอที่สอง
+      Future.delayed(Duration.zero, () {
+        Get.to(QuizScreen(category: "CMM214 : 1 Modelling"));
+      });
+    } else if (currentIndex == 2) { // Chapter 2
+      Future.delayed(Duration.zero, () {
+        Get.to(QuizScreen(category: "CMM214 : 2 UV Map"));
+      });
+    } else if (currentIndex == 3) { // Chapter 3
+      Future.delayed(Duration.zero, () {
+        Get.to(QuizScreen(category: "CMM214 : 3 Texturing"));
+      });
+    } else if (currentIndex == 4) { // Chapter 4 ✅ ตรงนี้ต้องเป็น 4
+      Future.delayed(Duration.zero, () {
+        Get.to(QuizScreen(category: "CMM214 : 4 Lighting"));
+      });
     }
   }
 
@@ -147,11 +172,21 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
   }
 
   void navigateToVideo(int newIndex) {
-    final video = videoList[newIndex];
     final isNext = newIndex > currentIndex;
+    final currentChapter = widget.chapter;
+    final currentChapterVideos = videoList.where((v) => v.chapter == currentChapter).toList();
+    final lastVideoOfChapter = currentChapterVideos.last;
 
-    // ตรวจสอบว่า index ที่เลือกอยู่ในขอบเขตของ videoList หรือไม่
-    if (newIndex >= 0 && newIndex < videoList.length) {
+    final isAtLastVideoOfChapter = YoutubePlayer.convertUrlToId(lastVideoOfChapter.url) == YoutubePlayer.convertUrlToId(widget.videoUrl);
+
+    if (isAtLastVideoOfChapter && isNext) {
+      // ✅ ถ้าอยู่สุดท้ายของ chapter แล้วกด next ไป quiz
+      goToQuizScreenForChapter(currentChapter);
+    } else if (newIndex >= 0 && newIndex < videoList.length) {
+      // ✅ ไปวิดีโอต่อไปตามปกติ
+      final video = videoList[newIndex];
+
+      isNavigatedFromButton = true;
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
@@ -164,10 +199,9 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
             );
           },
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            const beginLeft = Offset(1.0, 0.0);   // จากขวาไปซ้าย
+            const beginLeft = Offset(1.0, 0.0);
             const end = Offset.zero;
-
-            const beginRight = Offset(-1.0, 0.0); // จากซ้ายไปขวา
+            const beginRight = Offset(-1.0, 0.0);
             final tween = Tween<Offset>(
               begin: isNext ? beginLeft : beginRight,
               end: end,
@@ -183,43 +217,28 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
     }
   }
 
-  void showTestPopup() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Post test'),
-          content: const Text('Do you want to do this?'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('No'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text('Yes'),
-              onPressed: () {
-                Navigator.of(context).pop(); // ปิด Dialog ก่อน
+  void goToQuizScreenForChapter(String chapter) {
+    String category = "";
 
-                // นำไปยังหน้า QuizScreen ตามเงื่อนไขของ currentIndex
-                if (currentIndex == 2) {
-                  Get.to(QuizScreen(category: "CMM214 : 1 Modelling"));
-                } else if (currentIndex == 3) {
-                  Get.to(QuizScreen(category: "CMM214 : 2 UV Map"));
-                } else if (currentIndex == 4) {
-                  Get.to(QuizScreen(category: "CMM214 : 3 Texturing"));
-                } else if (currentIndex == 5) {
-                  Get.to(QuizScreen(category: "CMM214 : 4 Lighting"));
-                }
-              },
-            ),
-          ],
-        );
-      },
-    );
+    switch (chapter) {
+      case "Chapter 1":
+        category = "CMM214 : 1 Modelling";
+        break;
+      case "Chapter 2":
+        category = "CMM214 : 2 UV Map";
+        break;
+      case "Chapter 3":
+        category = "CMM214 : 3 Texturing";
+        break;
+      case "Chapter 4":
+        category = "CMM214 : 4 Lighting";
+        break;
+      default:
+        category = "Unknown Chapter";
+    }
+
+    Get.to(() => QuizScreen(category: category));
   }
-
 
   @override
   void dispose() {
@@ -229,7 +248,6 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
 
   @override
   Widget build(BuildContext context) {
-
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 876;
 
@@ -245,12 +263,6 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
       );
     }
 
-    // ตรวจสอบ currentIndex และแสดงป็อปอัพถ้าตรงกับเงื่อนไข
-    if (currentIndex == 2 || currentIndex == 3 || currentIndex == 4 || currentIndex == 5) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showTestPopup();
-      });
-    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3FFFE),
@@ -358,32 +370,6 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                                     color: Color(0xFF202D61),
                                   ),
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            const Text(
-                              'Progress in Studying',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Color(0xFF2866A5),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Expanded(
-                                  flex: 6,
-                                  child: Container(
-                                    height: 14,
-                                    child: LinearProgressIndicator(
-                                      value: 0.6,
-                                      backgroundColor: const Color(0xFFD9D9D9),
-                                      color: const Color(0xFFFFFFFF),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFCFFFFA),
@@ -393,11 +379,12 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
-                                  onPressed: openDocs, // เปลี่ยนจาก openPdfWeb() เป็น openDocs
-                                  child: const Text('Sheet'), // ชื่อปุ่มยังใช้คำว่า Sheet ตามเดิม
+                                  onPressed: openDocs,
+                                  child: const Text('Sheet'),
                                 ),
                               ],
                             ),
+                            const SizedBox(height: 8),
                           ],
                         ),
                       ),
