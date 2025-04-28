@@ -77,7 +77,7 @@ class _RenewMainPageState extends State<HomePage> {
         'title': 'CMM214 Animation Fundamental',
         'by' : 'P.Jirut',
         'start': '01/04/2025',
-        'end': '30/06/2025'
+        'end': '05/04/2025'
       },
       {
         'image' : 'assets/images/cloud_computing.jpg',

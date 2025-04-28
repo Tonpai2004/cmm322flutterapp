@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../controllers/progress_controller.dart';
+import '../quiz/quiz_screen.dart';
 import 'enroll mobile.dart';
 import 'enrolled.dart';
 import 'maincontent_video.dart';
@@ -485,27 +486,52 @@ class _ExpandableLessonTileState extends State<ExpandableLessonTile> {
               horizontal: 20.0,
             ),
             child: Column(
-              children:
-              widget.videos.map((video) {
+              children: widget.videos.map((video) {
                 return InkWell(
                   onTap: () {
                     if (video['title'] != 'Post Test') {
-                      widget.onVideoWatched?.call(widget.chapterNumber);
+                      widget.onVideoWatched?.call(widget.chapterNumber); // บันทึกความคืบหน้าก่อน
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder:
-                              (_) => MainContentVideoPage(
+                          builder: (_) => MainContentVideoPage(
                             videoTitle: video['title']!,
-                            videoUrl:
-                            video['url'] ??
-                                '', // Prevent null error
+                            videoUrl: video['url'] ?? '', // ป้องกัน null
                             chapter: widget.lessonTitle,
+                          ),
+                        ),
+                      );
+                    } else {
+                      // เมื่อเจอ Post Test ให้ไปที่ QuizScreen โดยเช็ค chapterNumber
+                      String category = '';
+                      switch (widget.chapterNumber) {
+                        case 1:
+                          category = "CMM214 : 1 Modelling";
+                          break;
+                        case 2:
+                          category = "CMM214 : 2 UV Map";
+                          break;
+                        case 3:
+                          category = "CMM214 : 3 Texturing";
+                          break;
+                        case 4:
+                          category = "CMM214 : 4 Lighting";
+                          break;
+                        default:
+                          category = "CMM214 : Unknown"; // ถ้าไม่ใช่บทที่ 1-4
+                      }
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => QuizScreen(
+                            category: category,
                           ),
                         ),
                       );
                     }
                   },
+
                   child: Column(
                     children: [
                       Row(
@@ -531,6 +557,7 @@ class _ExpandableLessonTileState extends State<ExpandableLessonTile> {
                 );
               }).toList(),
             ),
+
           ),
         const SizedBox(height: 12.0),
       ],

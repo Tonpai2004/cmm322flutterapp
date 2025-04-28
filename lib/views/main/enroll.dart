@@ -175,7 +175,7 @@ class _EnrollState extends State<Enroll> {
                     const Text('Number of Lessons: 4 lessons'),
                     const Text('Participants Enrolled: 92 people'),
                     const Text('Highest Score in This Course: 20 points'),
-                    const Text('Course End Date: 30/06/2025'),
+                    const Text('Course End Date: 05/04/2025'),
                     const SizedBox(height: 16),
                     const SizedBox(height: 0),
                     const Divider(color: Color(0xFF6BFFEE), thickness: 4),

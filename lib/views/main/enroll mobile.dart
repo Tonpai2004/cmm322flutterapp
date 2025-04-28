@@ -1,4 +1,3 @@
-import 'package:contentpagecmmapp/views/main/maincontent.dart';
 import 'package:contentpagecmmapp/views/main/support_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -36,7 +35,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(
-    GetMaterialApp(  // ใช้ GetMaterialApp แทน MaterialApp
+    GetMaterialApp(
       theme: ThemeData(fontFamily: 'Inter'),
       home: EnrollMobile(),
     ),
@@ -56,8 +55,26 @@ class _EnrollMobileState extends State<EnrollMobile> {
   final double sidebarWidth = 250;
   final Duration _animationDuration = const Duration(milliseconds: 300);
   bool _isSidebarOpen = false;
-  bool _option1 = true;
-  bool _option2 = false;
+  bool _isMenuOpen = false;
+  bool isLoggedIn = false;
+  String profilePath = 'assets/images/grayprofile.png';
+
+  bool _ongoing = false;
+  bool _upcoming = false;
+  bool _iotDev = false;
+  bool _animation = false;
+  bool _production = false;
+  bool _graphics = false;
+  bool _business = false;
+  bool _format = false;
+  bool _talk = false;
+  bool _thai = false;
+  bool _english = false;
+
+  bool _statusHeaderChecked = false;
+  bool _subjectCategoriesHeaderChecked = false;
+  bool _formatHeaderChecked = false;
+  bool _languageHeaderChecked = false;
 
   void _toggleSidebar() {
     setState(() {
@@ -65,23 +82,112 @@ class _EnrollMobileState extends State<EnrollMobile> {
     });
   }
 
-  bool _isMenuOpen = false;
-  bool isLoggedIn = false;
-  String profilePath = 'assets/images/grayprofile.png';
+  void _toggleStatus() {
+    setState(() {
+      _ongoing = !_ongoing;
+      _upcoming = !_upcoming;
+    });
+  }
+
+  void _toggleSubjectCategories() {
+    setState(() {
+      _iotDev = !_iotDev;
+      _animation = !_animation;
+      _production = !_production;
+      _graphics = !_graphics;
+      _business = !_business;
+    });
+  }
+
+  void _toggleFormat() {
+    setState(() {
+      _format = !_format;
+      _talk = !_talk;
+    });
+  }
+
+  void _toggleLanguage() {
+    setState(() {
+      _thai = !_thai;
+      _english = !_english;
+    });
+  }
+
+  Widget _buildFilterOption(String title, bool value, ValueChanged<bool?> onChanged) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 30.0),
+      child: Row(
+        children: [
+          Transform.scale(
+            scale: 1.05,
+            child: Checkbox(
+              value: value,
+              onChanged: onChanged,
+              activeColor: Color(0xFF54EDDC),
+              side: const BorderSide(color: Colors.white, width: 2),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: const TextStyle(color: Colors.white, fontSize: 16),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(String title, bool headerChecked, ValueChanged<bool?> onChanged) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Color(0xFF3FA099),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+        borderRadius: const BorderRadius.only(
+          topRight: Radius.circular(8),
+          bottomRight: Radius.circular(8),
+        ),
+      ),
+      child: Row(
+        children: [
+          Transform.scale(
+            scale: 1.1,
+            child: Checkbox(
+              value: headerChecked,
+              onChanged: onChanged,
+              activeColor: Color(0xFF54EDDC),
+              side: const BorderSide(color: Colors.white, width: 2),
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            title,
+            style: const TextStyle(color: Colors.white, fontSize: 20),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void initState() {
     super.initState();
-
-    // ฟังการเปลี่ยนแปลงของสถานะผู้ใช้จาก Firebase
     FirebaseAuth.instance.authStateChanges().listen((user) {
       setState(() {
         if (user != null) {
           isLoggedIn = true;
-          profilePath = 'assets/images/default_profile.jpg'; // เปลี่ยนเป็นรูปโปรไฟล์เมื่อ login
+          profilePath = 'assets/images/default_profile.jpg';
         } else {
           isLoggedIn = false;
-          profilePath = 'assets/images/grayprofile.png'; // รูปที่ใช้ตอนไม่ได้ล็อกอิน
+          profilePath = 'assets/images/grayprofile.png';
         }
       });
     });
@@ -94,92 +200,175 @@ class _EnrollMobileState extends State<EnrollMobile> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFCFFFFA),
-      body: Stack(
-        children: [
-          // Sidebar
-          AnimatedPositioned(
-            duration: _animationDuration,
-            left: _isSidebarOpen ? 0 : -sidebarWidth,
-            top: 0,
-            bottom: 0,
-            width: sidebarWidth,
-            child: Material(
-              elevation: 16,
-              borderRadius: const BorderRadius.only(
-                topRight: Radius.circular(20),
-                bottomRight: Radius.circular(20),
-              ),
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(20),
-                    bottomRight: Radius.circular(20),
-                  ),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            AnimatedPositioned(
+              duration: _animationDuration,
+              left: 0,
+              top: 40,
+              bottom: 0,
+              width: sidebarWidth,
+              child: Material(
+                elevation: 20,
+                color: Color(0xFF4BC0B2),
+                borderRadius: const BorderRadius.only(
+                  bottomRight: Radius.circular(30),
                 ),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Filter', style: TextStyle(fontSize: 24, color: Colors.white)),
-                    const SizedBox(height: 20),
-                    CheckboxListTile(
-                      title: const Text("Status", style: TextStyle(color: Colors.white)),
-                      value: _option1,
-                      onChanged: (bool? value) {
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 40),
+                  child: ListView(
+                    children: [
+                      SizedBox(height: 50),
+                      Center(
+                        child: const Text(
+                          'Filter',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 35,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      _buildHeader('Status', _statusHeaderChecked, (val) {
                         setState(() {
-                          _option1 = value ?? false;
+                          _statusHeaderChecked = val!;
+                          _ongoing = val;
+                          _upcoming = val;
                         });
-                      },
-                    ),
-                    CheckboxListTile(
-                      title: const Text("Ended", style: TextStyle(color: Colors.white)),
-                      value: _option2,
-                      onChanged: (bool? value) {
+                      }),
+                      _buildFilterOption('Ongoing', _ongoing, (val) => setState(() => _ongoing = val!)),
+                      _buildFilterOption('Upcoming', _upcoming, (val) => setState(() => _upcoming = val!)),
+                      SizedBox(height: 10),
+
+                      _buildHeader('Subject Categories', _subjectCategoriesHeaderChecked, (val) {
                         setState(() {
-                          _option2 = value ?? false;
+                          _subjectCategoriesHeaderChecked = val!;
+                          _iotDev = val;
+                          _animation = val;
+                          _production = val;
+                          _graphics = val;
+                          _business = val;
                         });
-                      },
-                    ),
-                    // ... (other filter options here)
-                  ],
+                      }),
+                      _buildFilterOption('IOT & DEV', _iotDev, (val) => setState(() => _iotDev = val!)),
+                      _buildFilterOption('ANIMATION', _animation, (val) => setState(() => _animation = val!)),
+                      _buildFilterOption('PRODUCTION', _production, (val) => setState(() => _production = val!)),
+                      _buildFilterOption('GRAPHICS', _graphics, (val) => setState(() => _graphics = val!)),
+                      _buildFilterOption('BUSINESS', _business, (val) => setState(() => _business = val!)),
+                      SizedBox(height: 10),
+
+                      _buildHeader('Format', _formatHeaderChecked, (val) {
+                        setState(() {
+                          _formatHeaderChecked = val!;
+                          _format = val;
+                          _talk = val;
+                        });
+                      }),
+                      _buildFilterOption('Talk', _format, (val) => setState(() => _format = val!)),
+                      _buildFilterOption('Talk & Workshop', _talk, (val) => setState(() => _talk = val!)),
+                      SizedBox(height: 10),
+
+                      _buildHeader('Language', _languageHeaderChecked, (val) {
+                        setState(() {
+                          _languageHeaderChecked = val!;
+                          _thai = val;
+                          _english = val;
+                        });
+                      }),
+                      _buildFilterOption('Thai', _english, (val) => setState(() => _english = val!)),
+                      _buildFilterOption('English', _thai, (val) => setState(() => _thai = val!)),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
 
           // Main Content
           AnimatedPositioned(
             duration: _animationDuration,
             left: _isSidebarOpen ? sidebarWidth : 0,
             right: 0,
-            top: 80,
+            top: 60,
             bottom: 0,
-            child: Scaffold(
-              backgroundColor: const Color(0xFFCFFFFA),
-              body: StreamBuilder<List<WorkshopData>>(
-                stream: _workshopController.getWorkshops(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (snapshot.hasError) {
-                    return const Center(child: Text('Error fetching data'));
-                  }
+            child: Container(
+              margin: EdgeInsets.only(left: _isSidebarOpen ? sidebarWidth : 0), // บีบขนาดด้วย
+              color: const Color(0xFFCFFFFA),
+              child: Scaffold(
+                backgroundColor: Colors.transparent, // อย่ากำหนดพื้นหลังใน Scaffold ซ้ำ
+                body: StreamBuilder<List<WorkshopData>>(
+                  stream: _workshopController.getWorkshops(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError) {
+                      return const Center(child: Text('Error fetching data'));
+                    }
 
-                  final workshops = snapshot.data;
+                    final workshops = snapshot.data; // Snapshot here
 
-                  if (workshops == null || workshops.isEmpty) {
-                    return const Center(child: Text('No workshops available'));
-                  }
+                    if (workshops == null || workshops.isEmpty) {
+                      return const Center(child: Text('No workshops available'));
+                    }
 
-                  return ListView.builder(
-                    itemCount: workshops.length,
-                    itemBuilder: (context, index) {
-                      return _buildWorkshopCard(context, workshops[index]);
-                    },
-                  );
-                },
+                    // Apply filter based on Subject Categories
+                    final filteredWorkshops = workshops.where((workshop) {
+
+                      // Date and Time of events //
+                      if (_ongoing && workshop.endDate.contains('April')) {
+                        return true;
+                      }
+                      if (_upcoming && !workshop.startDate.contains('April')) {
+                        return true;
+                      }
+                      // Subject Categories //
+                      if (_iotDev && workshop.code.toUpperCase().contains('DEV')) {
+                        return true;
+                      }
+                      if (_animation && workshop.code.toUpperCase().contains('FLTR')) {
+                        return true;
+                      }
+                      if (_production && workshop.code.toUpperCase().contains('PROD')) {
+                        return true;
+                      }
+                      if (_graphics && workshop.code.toUpperCase().contains('GRAPH')) {
+                        return true;
+                      }
+                      if (_business && workshop.code.toUpperCase().contains('BUSI')) {
+                        return true;
+                      }
+
+                      // Format //
+                      if ((_format && _talk) && !workshop.code.contains('FLTR')) {
+                        return true;
+                      }
+
+                      // Language //
+                      if (_thai && workshop.subject.contains('แอนิเมชัน')) {
+                        return true;
+                      }
+                      if (_english && workshop.code.contains('Animation')) {
+                        return true;
+                      }
+
+                      if (!_ongoing && !_upcoming && !_iotDev && !_animation && !_production && !_graphics && !_business && !_format && !_talk && !_thai && !_english) {
+                        return true;
+                      }
+
+                      return false;
+
+                    }).toList();
+
+                    return ListView.builder(
+                      itemCount: filteredWorkshops.length,
+                      itemBuilder: (context, index) {
+                        return _buildWorkshopCard(context, filteredWorkshops[index]);
+                      },
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -241,17 +430,24 @@ class _EnrollMobileState extends State<EnrollMobile> {
           ),
 
           // Floating Button to Open/Close Sidebar
-          AnimatedPositioned(
-            duration: _animationDuration,
-            left: _isSidebarOpen ? sidebarWidth - 30 : 10,
-            top: 130,
-            child: FloatingActionButton(
-              onPressed: _toggleSidebar,
-              backgroundColor: Color(0xFF54EDDC),
-              child: const Icon(Icons.arrow_right, color: Colors.white, size: 55),
+          if (!_isMenuOpen)
+            AnimatedPositioned(
+              duration: _animationDuration,
+              left: _isSidebarOpen ? sidebarWidth - 0 : 0,
+              top: 130,
+
+              child: FloatingActionButton(
+                onPressed: _toggleSidebar,
+                backgroundColor: const Color(0xFF4bc0b2),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.horizontal(left: Radius.circular(0), right: Radius.circular(16)),
+                ),
+                child: Icon(_isSidebarOpen ? Icons.arrow_left : Icons.arrow_right, color: Colors.white, size: 30),
+              ),
             ),
-          ),
+
         ],
+      ),
       ),
     );
   }
@@ -272,6 +468,7 @@ class _EnrollMobileState extends State<EnrollMobile> {
             );
           },
           child: Container(
+            width: 350,
             margin: const EdgeInsets.all(30),
             padding: const EdgeInsets.all(40),
             decoration: BoxDecoration(
