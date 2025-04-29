@@ -1,4 +1,5 @@
 import 'package:contentpagecmmapp/views/main/maincontent.dart';
+import 'package:contentpagecmmapp/views/main/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -8,7 +9,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../views/main/homepage.dart';
 import '../../../views/main/login.dart';
-import '../../../views/main/mockup_profile.dart';
 import '../../../views/main/support_page.dart';
 import '../../../views/main/navbar.dart';
 import '../../../views/main/footer.dart';
@@ -75,20 +75,27 @@ class _EnrolledPageState extends State<EnrolledPage> {
   }
 
   void checkLoginStatus() async {
-    FirebaseAuth.instance.authStateChanges().listen((user) async {
+    FirebaseAuth.instance.authStateChanges().listen((user) {
       setState(() {
         if (user != null) {
           isLoggedIn = true;
-          profilePath = 'assets/images/default_profile.jpg';
-          fetchAndSaveStudentId().then((_) {
-            loadEnrolledCourses();
-          });
+          _loadUserProfile(user.uid); // เปลี่ยนเป็นรูปโปรไฟล์เมื่อ login
         } else {
           isLoggedIn = false;
-          profilePath = 'assets/images/grayprofile.png';
+          profilePath = 'assets/images/default_profile.jpg'; // รูปที่ใช้ตอนไม่ได้ล็อกอิน
         }
       });
     });
+  }
+
+  Future<void> _loadUserProfile(String userId) async {
+    final doc = await FirebaseFirestore.instance.collection('students').doc(userId).get();
+    if (doc.exists) {
+      final data = doc.data();
+      setState(() {
+        profilePath = data?['profileImagePath'] ?? 'assets/images/grayprofile.png';
+      });
+    }
   }
 
   void enrollCourse(String courseId) async {
@@ -232,8 +239,14 @@ class _EnrolledPageState extends State<EnrolledPage> {
                 onProfileTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const MockProfilePage()),
-                  );
+                    MaterialPageRoute(builder: (context) => const ProfilePage()),
+                  ).then((updatedImagePath) {
+                    if (updatedImagePath != null) {
+                      setState(() {
+                        profilePath = updatedImagePath;
+                      });
+                    }
+                  });
                 },
                 onLogout: () async {
                   await FirebaseAuth.instance.signOut();
@@ -242,6 +255,7 @@ class _EnrolledPageState extends State<EnrolledPage> {
                   });
                 },
               ),
+
               Expanded(
                 child: Column(
                   children: [
@@ -327,7 +341,7 @@ class _InProgressList extends StatelessWidget {
       child: Column(
         children: courses.map((course) {
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             child: _CourseCard(
               courseId: course['courseId'],
               enrolledAt: course['enrolledAt'],

@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contentpagecmmapp/views/main/enroll%20mobile.dart';
+import 'package:contentpagecmmapp/views/main/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +10,6 @@ import 'enrolled.dart';
 import '../../firebase_options.dart';
 import 'learnmore.dart';
 import 'login.dart';
-import 'mockup_profile.dart';
 import '../main/coming_soon.dart';
 import 'support_page.dart';
 import 'navbar.dart';
@@ -40,24 +41,36 @@ class _RenewMainPageState extends State<HomePage> {
 
   bool _isMenuOpen = false;
   bool isLoggedIn = false;
-  String profilePath = 'assets/images/grayprofile.png';
+  String profilePath = 'assets/images/default_profile.jpg';
 
   @override
   void initState() {
     super.initState();
+    checkLoginStatus();
+  }
 
-    // ฟังการเปลี่ยนแปลงของสถานะผู้ใช้จาก Firebase
+  void checkLoginStatus() async {
     FirebaseAuth.instance.authStateChanges().listen((user) {
       setState(() {
         if (user != null) {
           isLoggedIn = true;
-          profilePath = 'assets/images/default_profile.jpg'; // เปลี่ยนเป็นรูปโปรไฟล์เมื่อ login
+          _loadUserProfile(user.uid); // เปลี่ยนเป็นรูปโปรไฟล์เมื่อ login
         } else {
           isLoggedIn = false;
-          profilePath = 'assets/images/grayprofile.png'; // รูปที่ใช้ตอนไม่ได้ล็อกอิน
+          profilePath = 'assets/images/default_profile.jpg'; // รูปที่ใช้ตอนไม่ได้ล็อกอิน
         }
       });
     });
+  }
+
+  Future<void> _loadUserProfile(String userId) async {
+    final doc = await FirebaseFirestore.instance.collection('students').doc(userId).get();
+    if (doc.exists) {
+      final data = doc.data();
+      setState(() {
+        profilePath = data?['profileImagePath'] ?? 'assets/images/grayprofile.png';
+      });
+    }
   }
 
 
@@ -73,25 +86,25 @@ class _RenewMainPageState extends State<HomePage> {
 
     final List<Map<String, String>> events = [
       {
-        'image' : 'assets/images/animation_subject.jpg',
+        'image' : 'assets/images/studio.jpg',
         'title': 'CMM214 Animation Fundamental',
         'by' : 'P.Jirut',
-        'start': '01/04/2025',
-        'end': '05/04/2025'
+        'start': 'April 1, 2025',
+        'end': 'April 5, 2025'
       },
       {
         'image' : 'assets/images/cloud_computing.jpg',
         'title': 'CMM443 Cloud Computing',
         'by' : 'P.Suriyong',
-        'start': '10/05/2025',
-        'end': '10/08/2025'
+        'start': 'May 10, 2025',
+        'end': 'August 10, 2025'
       },
       {
         'image' : 'assets/images/digital_learning.jpg',
         'title': 'CMM311 Digital Learning Media',
         'by' : 'P.Chanin',
-        'start': '15/07/2025',
-        'end': '15/10/2025'
+        'start': 'July 15, 2025',
+        'end': 'August 15, 2025'
       },
     ];
 
@@ -144,8 +157,14 @@ class _RenewMainPageState extends State<HomePage> {
                   onProfileTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const MockProfilePage()),
-                    );
+                      MaterialPageRoute(builder: (context) => const ProfilePage()),
+                    ).then((updatedImagePath) {
+                      if (updatedImagePath != null) {
+                        setState(() {
+                          profilePath = updatedImagePath;  // อัพเดตรูปโปรไฟล์ที่นี่
+                        });
+                      }
+                    });
                   },
                   onLogout: () async {
                     await FirebaseAuth.instance.signOut();
@@ -291,12 +310,12 @@ class _RenewMainPageState extends State<HomePage> {
                                       onTap: () {
                                         Navigator.push(
                                           context,
-                                          MaterialPageRoute(builder: (context) => EnrollMobile()), // ใส่หน้าที่ต้องการไป
+                                          MaterialPageRoute(builder: (context) => const EnrollMobile(preselectSubject: true)), // ใส่หน้าที่ต้องการไป
                                         );
                                       },
                                       child: const Text(
                                         'ALL',
-                                        style: TextStyle(fontSize: 16, fontFamily: 'Inter', color: Colors.blue), // ใส่สีให้ดูเหมือนกดได้
+                                        style: TextStyle(fontSize: 16, fontFamily: 'Inter', color: Colors.black), // ใส่สีให้ดูเหมือนกดได้
                                       ),
                                     ),
                                   ],
@@ -314,7 +333,7 @@ class _RenewMainPageState extends State<HomePage> {
                                       children: List.generate(categories.length, (index) {
                                         return SizedBox(
                                           width: itemWidth,
-                                          child: _categoryItem(categories[index]),
+                                          child: _categoryItem(context, categories[index]),
                                         );
                                       }),
                                     );
@@ -339,23 +358,33 @@ class _RenewMainPageState extends State<HomePage> {
     );
   }
 
-  Widget _categoryItem(String title) {
-    return SizedBox(
-      width: 90,
-      child: Column(
-        children: [
-          const CircleAvatar(
-            radius: 45,
-            backgroundColor: Color(0xFF54EDDC),
-            child: Icon(Icons.book, color: Colors.white, size: 34),
+  Widget _categoryItem(BuildContext context, String title) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EnrollMobile(preferSubject: title),
           ),
-          const SizedBox(height: 10),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
-          ),
-        ],
+        );
+      },
+      child: SizedBox(
+        width: 90,
+        child: Column(
+          children: [
+            const CircleAvatar(
+              radius: 45,
+              backgroundColor: Color(0xFF54EDDC),
+              child: Icon(Icons.book, color: Colors.white, size: 34),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -380,7 +409,18 @@ class _RenewMainPageState extends State<HomePage> {
                   title,
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, fontFamily: 'Inter'),
                 ),
-                const Text('ALL', style: TextStyle(fontSize: 16, fontFamily: 'Inter')),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const EnrollMobile(preselectStatus: true)), // ใส่หน้าที่ต้องการไป
+                    );
+                  },
+                  child: const Text(
+                    'ALL',
+                    style: TextStyle(fontSize: 16, fontFamily: 'Inter', color: Colors.black), // ใส่สีให้ดูเหมือนกดได้
+                  ),
+                ),
               ],
             ),
           ),

@@ -1,14 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:contentpagecmmapp/views/main/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-
-import 'package:flutter/services.dart' show rootBundle; //เผื่อไว้สำหรับแก้ตอนเปิด pdf แบบ emulator
-import 'package:path_provider/path_provider.dart'; //เผื่อไว้สำหรับแก้ตอนเปิด pdf แบบ emulator
-import 'package:open_filex/open_filex.dart'; //เผื่อไว้สำหรับแก้ตอนเปิด pdf แบบ emulator
-import 'dart:io'; //เผื่อไว้สำหรับแก้ตอนเปิด pdf แบบ emulator
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
+import 'dart:io';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
@@ -18,34 +19,25 @@ import '../../firebase_options.dart';
 import '../quiz/quiz_screen.dart';
 import 'homepage.dart';
 import 'login.dart';
-import 'mockup_profile.dart';
 import 'support_page.dart';
 import 'navbar.dart';
 import 'footer.dart';
 
 Future<void> openDocs() async {
   if (kIsWeb) {
-    // ถ้าเป็น Web
     final url = Uri.parse('assets/docs/cmm214_exampledoc.pdf');
     if (!await launchUrl(url, webOnlyWindowName: '_blank')) {
       throw 'Could not launch $url';
     }
   } else {
-    // ถ้าเป็น Android/iOS/Desktop
-    // 1. ดึงไฟล์จาก asset
     final bytes = await rootBundle.load('assets/docs/cmm214_exampledoc.pdf');
     final list = bytes.buffer.asUint8List();
-
-    // 2. สร้างไฟล์ชั่วคราว
     final tempDir = await getTemporaryDirectory();
     final file = await File('${tempDir.path}/cmm214_exampledoc.pdf').create();
     await file.writeAsBytes(list);
-
-    // 3. เปิดไฟล์ด้วย open_filex
     await OpenFilex.open(file.path);
   }
 }
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,7 +49,6 @@ void main() async {
   ));
 }
 
-// ✅ โครงสร้างวิดีโอ
 class VideoData {
   final String title;
   final String url;
@@ -70,7 +61,6 @@ class VideoData {
   });
 }
 
-// ✅ รายชื่อวิดีโอทั้งหมด (แก้ไขตามข้อมูลจริงของคุณ)
 final List<VideoData> videoList = [
   VideoData(title: 'Clip 1: Make An Eye Socket!', url: 'https://www.youtube.com/watch?v=1D0jAfm18rw', chapter: 'Chapter 1'),
   VideoData(title: 'Clip 2: Tentacle and Eyeball', url: 'https://www.youtube.com/watch?v=LMqxMvmwK48', chapter: 'Chapter 1'),
@@ -96,7 +86,6 @@ class MainContentVideoPage extends StatefulWidget {
 }
 
 class _MainContentVideoPageState extends State<MainContentVideoPage> {
-
   bool _isMenuOpen = false;
   bool isLoggedIn = false;
   String profilePath = 'assets/images/grayprofile.png';
@@ -105,16 +94,16 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
   bool hasValidVideo = false;
   int currentIndex = 0;
 
+  double progress = 0.6;
+
   @override
   void initState() {
     super.initState();
-
     checkLoginStatus();
 
     final currentVideoId = YoutubePlayer.convertUrlToId(widget.videoUrl);
-    debugPrint('Video ID = $currentVideoId'); // ช่วย debug ได้มาก
+    debugPrint('Video ID = $currentVideoId');
 
-    // เทียบจาก videoId แทนเพื่อกันกรณี URL มีพารามิเตอร์แปลกๆ
     currentIndex = videoList.indexWhere((v) =>
     YoutubePlayer.convertUrlToId(v.url) == currentVideoId &&
         v.chapter == widget.chapter);
@@ -137,20 +126,29 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
       setState(() {
         if (user != null) {
           isLoggedIn = true;
-          profilePath = 'assets/images/default_profile.jpg'; // เปลี่ยนเป็นรูปโปรไฟล์เมื่อ login
+          _loadUserProfile(user.uid); // เปลี่ยนเป็นรูปโปรไฟล์เมื่อ login
         } else {
           isLoggedIn = false;
-          profilePath = 'assets/images/grayprofile.png'; // รูปที่ใช้ตอนไม่ได้ล็อกอิน
+          profilePath = 'assets/images/default_profile.jpg'; // รูปที่ใช้ตอนไม่ได้ล็อกอิน
         }
       });
     });
+  }
+
+  Future<void> _loadUserProfile(String userId) async {
+    final doc = await FirebaseFirestore.instance.collection('students').doc(userId).get();
+    if (doc.exists) {
+      final data = doc.data();
+      setState(() {
+        profilePath = data?['profileImagePath'] ?? 'assets/images/grayprofile.png';
+      });
+    }
   }
 
   void navigateToVideo(int newIndex) {
     final video = videoList[newIndex];
     final isNext = newIndex > currentIndex;
 
-    // ตรวจสอบว่า index ที่เลือกอยู่ในขอบเขตของ videoList หรือไม่
     if (newIndex >= 0 && newIndex < videoList.length) {
       Navigator.pushReplacement(
         context,
@@ -164,14 +162,11 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
             );
           },
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            const beginLeft = Offset(1.0, 0.0);   // จากขวาไปซ้าย
+            const beginLeft = Offset(1.0, 0.0);
             const end = Offset.zero;
 
-            const beginRight = Offset(-1.0, 0.0); // จากซ้ายไปขวา
-            final tween = Tween<Offset>(
-              begin: isNext ? beginLeft : beginRight,
-              end: end,
-            ).chain(CurveTween(curve: Curves.easeInOut));
+            const beginRight = Offset(-1.0, 0.0);
+            final tween = Tween<Offset>(begin: isNext ? beginLeft : beginRight, end: end).chain(CurveTween(curve: Curves.easeInOut));
 
             return SlideTransition(
               position: animation.drive(tween),
@@ -200,9 +195,8 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
             TextButton(
               child: const Text('Yes'),
               onPressed: () {
-                Navigator.of(context).pop(); // ปิด Dialog ก่อน
+                Navigator.of(context).pop();
 
-                // นำไปยังหน้า QuizScreen ตามเงื่อนไขของ currentIndex
                 if (currentIndex == 2) {
                   Get.to(QuizScreen(category: "CMM214 : 1 Modelling"));
                 } else if (currentIndex == 3) {
@@ -220,7 +214,6 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
     );
   }
 
-
   @override
   void dispose() {
     _youtubeController?.dispose();
@@ -229,7 +222,6 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
 
   @override
   Widget build(BuildContext context) {
-
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 876;
 
@@ -245,7 +237,6 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
       );
     }
 
-    // ตรวจสอบ currentIndex และแสดงป็อปอัพถ้าตรงกับเงื่อนไข
     if (currentIndex == 2 || currentIndex == 3 || currentIndex == 4 || currentIndex == 5) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showTestPopup();
@@ -258,7 +249,6 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ✅ Top Bar
             ResponsiveNavbar(
               isMobile: isMobile,
               isMenuOpen: _isMenuOpen,
@@ -298,8 +288,14 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
               onProfileTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const MockProfilePage()),
-                );
+                  MaterialPageRoute(builder: (context) => const ProfilePage()),
+                ).then((updatedImagePath) {
+                  if (updatedImagePath != null) {
+                    setState(() {
+                      profilePath = updatedImagePath;  // อัพเดตรูปโปรไฟล์ที่นี่
+                    });
+                  }
+                });
               },
               onLogout: () async {
                 await FirebaseAuth.instance.signOut();
@@ -308,8 +304,6 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                 });
               },
             ),
-
-            // ✅ Course Header
             Container(
               color: const Color(0xFFCFFFFA),
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
@@ -322,8 +316,6 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                 ),
               ),
             ),
-
-            // ✅ Main Body
             Expanded(
               child: SingleChildScrollView(
                 child: Container(
@@ -334,7 +326,6 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                   ),
                   child: Column(
                     children: [
-                      // Header Section
                       Container(
                         padding: const EdgeInsets.all(16.0),
                         decoration: BoxDecoration(
@@ -376,7 +367,7 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                                   child: Container(
                                     height: 14,
                                     child: LinearProgressIndicator(
-                                      value: 0.6,
+                                      value: progress,
                                       backgroundColor: const Color(0xFFD9D9D9),
                                       color: const Color(0xFFFFFFFF),
                                       borderRadius: BorderRadius.circular(10),
@@ -393,16 +384,14 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
-                                  onPressed: openDocs, // เปลี่ยนจาก openPdfWeb() เป็น openDocs
-                                  child: const Text('Sheet'), // ชื่อปุ่มยังใช้คำว่า Sheet ตามเดิม
+                                  onPressed: openDocs,
+                                  child: const Text('Sheet'),
                                 ),
                               ],
                             ),
                           ],
                         ),
                       ),
-
-                      // ✅ Video Section
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16.0),
@@ -431,7 +420,13 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                               children: [
                                 ElevatedButton(
                                   onPressed: currentIndex > 0
-                                      ? () => navigateToVideo(currentIndex - 1)
+                                      ? () {
+                                    setState(() {
+                                      currentIndex--;
+                                      progress = currentIndex / videoList.length;
+                                    });
+                                    navigateToVideo(currentIndex);
+                                  }
                                       : null,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFFFFFFF),
@@ -445,7 +440,13 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                                 ),
                                 ElevatedButton(
                                   onPressed: currentIndex < videoList.length - 1
-                                      ? () => navigateToVideo(currentIndex + 1)
+                                      ? () {
+                                    setState(() {
+                                      currentIndex++;
+                                      progress = currentIndex / videoList.length;
+                                    });
+                                    navigateToVideo(currentIndex);
+                                  }
                                       : null,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFFFFFFF),
@@ -467,8 +468,6 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                 ),
               ),
             ),
-
-            // ✅ Footer
             const Footer(),
           ],
         ),
