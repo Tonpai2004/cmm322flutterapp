@@ -117,8 +117,7 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
     debugPrint('Video ID = $currentVideoId'); // ช่วย debug ได้มาก
 
     currentIndex = videoList.indexWhere((v) =>
-    YoutubePlayer.convertUrlToId(v.url) == currentVideoId &&
-        v.chapter == widget.chapter);
+    YoutubePlayer.convertUrlToId(v.url) == currentVideoId);
 
     if (currentVideoId != null && widget.videoUrl.isNotEmpty) {
       hasValidVideo = true;
@@ -138,19 +137,19 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
   void goToQuizScreenIfNeeded() {
     if (!isNavigatedFromButton) return; // ✅ ถ้าไม่ได้มาจากปุ่ม Next/Prev ก็ไม่ต้องเด้ง
 
-    if (currentIndex == 1) { // Chapter 1 วิดีโอที่สอง
+    if (currentIndex == 2) { // Chapter 1 วิดีโอที่สอง
       Future.delayed(Duration.zero, () {
         Get.to(QuizScreen(category: "CMM214 : 1 Modelling"));
       });
-    } else if (currentIndex == 2) { // Chapter 2
+    } else if (currentIndex == 3) { // Chapter 2
       Future.delayed(Duration.zero, () {
         Get.to(QuizScreen(category: "CMM214 : 2 UV Map"));
       });
-    } else if (currentIndex == 3) { // Chapter 3
+    } else if (currentIndex == 4) { // Chapter 3
       Future.delayed(Duration.zero, () {
         Get.to(QuizScreen(category: "CMM214 : 3 Texturing"));
       });
-    } else if (currentIndex == 4) { // Chapter 4 ✅ ตรงนี้ต้องเป็น 4
+    } else if (currentIndex == 5) { // Chapter 4 ✅ ตรงนี้ต้องเป็น 4
       Future.delayed(Duration.zero, () {
         Get.to(QuizScreen(category: "CMM214 : 4 Lighting"));
       });
@@ -173,17 +172,8 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
 
   void navigateToVideo(int newIndex) {
     final isNext = newIndex > currentIndex;
-    final currentChapter = widget.chapter;
-    final currentChapterVideos = videoList.where((v) => v.chapter == currentChapter).toList();
-    final lastVideoOfChapter = currentChapterVideos.last;
 
-    final isAtLastVideoOfChapter = YoutubePlayer.convertUrlToId(lastVideoOfChapter.url) == YoutubePlayer.convertUrlToId(widget.videoUrl);
-
-    if (isAtLastVideoOfChapter && isNext) {
-      // ✅ ถ้าอยู่สุดท้ายของ chapter แล้วกด next ไป quiz
-      goToQuizScreenForChapter(currentChapter);
-    } else if (newIndex >= 0 && newIndex < videoList.length) {
-      // ✅ ไปวิดีโอต่อไปตามปกติ
+    if (newIndex >= 0 && newIndex < videoList.length) {
       final video = videoList[newIndex];
 
       isNavigatedFromButton = true;
@@ -214,6 +204,9 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
           },
         ),
       );
+    } else if (isNext && newIndex == videoList.length) {
+      // ✅ ถ้าคลิปสุดท้าย → ไป quiz อัตโนมัติ
+      goToQuizScreenForChapter(widget.chapter);
     }
   }
 
@@ -431,18 +424,17 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                                   child: const Text('< Previous'),
                                 ),
                                 ElevatedButton(
-                                  onPressed: currentIndex < videoList.length - 1
+                                  onPressed: currentIndex < videoList.length - 1 &&
+                                      videoList[currentIndex + 1].chapter == widget.chapter
                                       ? () => navigateToVideo(currentIndex + 1)
-                                      : null,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFFFFFFF),
-                                    foregroundColor: const Color(0xFF202D61),
-                                    elevation: 2,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                  ),
-                                  child: const Text('Next >'),
+                                      : () {
+                                    // ✅ ถ้าคลิปสุดท้ายใน Chapter แล้วให้ไปหน้า Quiz
+                                    goToQuizScreenForChapter(widget.chapter);
+                                  },
+                                  child: Text(currentIndex < videoList.length - 1 &&
+                                      videoList[currentIndex + 1].chapter == widget.chapter
+                                      ? 'Next >'
+                                      : 'Go to Quiz'),
                                 ),
                               ],
                             ),
