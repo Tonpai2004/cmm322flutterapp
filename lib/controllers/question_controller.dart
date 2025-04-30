@@ -28,11 +28,10 @@ class QuestionController extends GetxController with GetSingleTickerProviderStat
   final RxInt _questionNumber = 1.obs;
   RxInt get questionNumber => _questionNumber;
 
-  // Questions
   List<Question> _questions = [];
   List<Question> get questions => _questions;
 
-  RxList<Question> _filteredQuestion = <Question>[].obs; // ทำให้เป็น RxList
+  RxList<Question> _filteredQuestion = <Question>[].obs;
   List<Question> get filteredQuestion => _filteredQuestion.toList();
 
   final TextEditingController questionControllerText = TextEditingController();
@@ -43,7 +42,6 @@ class QuestionController extends GetxController with GetSingleTickerProviderStat
   final TextEditingController correctAnswerController = TextEditingController();
   final TextEditingController quizCategory = TextEditingController();
 
-  // Categories
   final String _collectionQuestions = "questions";
   final String _collectionCategories = "categories";
   TextEditingController categoryTitleController = TextEditingController();
@@ -52,14 +50,9 @@ class QuestionController extends GetxController with GetSingleTickerProviderStat
   RxList<String> savedCategories = <String>[].obs;
   RxList<String> savedSubtitle = <String>[].obs;
 
-  // เพิ่มฟังก์ชันเพื่อเพิ่มเวลา
   void incrementTime() {
     seconds.value++;
   }
-
-  // ================================
-  //           FIRESTORE
-  // ================================
 
   Future<void> saveQuestionToFirestore(Question question) async {
     try {
@@ -94,17 +87,14 @@ class QuestionController extends GetxController with GetSingleTickerProviderStat
         subtitles.add(doc['subtitle']);
       }
 
-      savedCategories.assignAll(categories);  // เพิ่ม categories ลงใน savedCategories
-      savedSubtitle.assignAll(subtitles);     // เพิ่ม subtitles ลงใน savedSubtitle
-
-      // พิมพ์ค่า savedCategories หลังจากโหลดจาก Firestore
+      savedCategories.assignAll(categories);
+      savedSubtitle.assignAll(subtitles);
       print('Loaded Categories: ${savedCategories.value}');
       update();
     } catch (e) {
       print('Failed to load categories: $e');
     }
   }
-
 
   Future<void> loadQuestionsFromFirestore() async {
     try {
@@ -114,15 +104,13 @@ class QuestionController extends GetxController with GetSingleTickerProviderStat
       _questions = snapshot.docs.map((doc) {
         var data = doc.data() as Map<String, dynamic>;
 
-        // ตรวจสอบว่าข้อมูลมีคีย์ที่คาดหวังหรือไม่
         if (data.containsKey("questions") && data.containsKey("category")) {
           var question = Question.fromJson(data);
-          print('load questions');
-          print(question.questions);  // ตรวจสอบข้อมูลที่ได้รับจาก Firestore
+          print('load questions: ${question.questions}');
           return question;
         } else {
           print('Missing expected fields in document: ${doc.id}');
-          return null;  // หรือการจัดการอื่นๆ
+          return null;
         }
       }).whereType<Question>().toList();
 
@@ -132,18 +120,29 @@ class QuestionController extends GetxController with GetSingleTickerProviderStat
     }
   }
 
+  void resetQuiz() {
+    _isAnswered = false;
+    _correctAns = 0;
+    _selectedAns = 0;
+    _numOfCorrectAns = 0;
+    _questionNumber.value = 1;
+    seconds.value = 0;
+    _filteredQuestion.clear();
 
+    _pageController = PageController();
 
-  // ================================
-  //           QUIZ LOGIC
-  // ================================
+    update();
+  }
 
   void checkAns(Question question, int selectedIndex) {
+    print('Answer selected: $selectedIndex');
     _isAnswered = true;
     _correctAns = question.answer;
     _selectedAns = selectedIndex;
 
-    if (_correctAns == _selectedAns) _numOfCorrectAns++;
+    if (_correctAns == _selectedAns) {
+      _numOfCorrectAns++;
+    }
 
     update();
 
@@ -162,6 +161,8 @@ class QuestionController extends GetxController with GetSingleTickerProviderStat
           curve: Curves.ease,
         );
       });
+
+      update();
     } else {
       Get.to(() => const ScorePage(), arguments: {
         'time': seconds.value,
@@ -176,23 +177,19 @@ class QuestionController extends GetxController with GetSingleTickerProviderStat
   }
 
   Future<void> setFilteredQuestions(String category) async {
-    // รอให้ข้อมูลโหลดก่อน
     await loadCategoriesFromFirestore();
     await loadQuestionsFromFirestore();
 
-    // พิมพ์ค่าของ category ที่ส่งเข้ามา
     print('Selected Category: $category');
 
     if (savedCategories.contains(category)) {
-      // กรองคำถามที่ category ตรงกับหมวดหมู่ที่เลือก
-      _filteredQuestion.value = _questions.where((question) {
-        // พิมพ์ค่า question.category สำหรับแต่ละคำถาม
+      final filtered = _questions.where((question) {
         print('Question Category: ${question.category}');
         return question.category == category;
       }).toList();
 
-      // พิมพ์ค่า _filteredQuestion หลังจากการกรอง
-      print('Filtered Questions: ${_filteredQuestion.value}');
+      print('Filtered Questions Length: ${filtered.length}');
+      _filteredQuestion.value = filtered;
 
       if (_filteredQuestion.isEmpty) {
         Get.snackbar("No Questions", "There are no questions in this category.");
@@ -200,22 +197,17 @@ class QuestionController extends GetxController with GetSingleTickerProviderStat
     } else {
       Get.snackbar("Invalid Category", "This category doesn't exist.");
     }
+
+    update(); // ✅ Refresh UI หลัง filter เสร็จ
   }
 
-
-
-
-
   List<Question> getQuestionsByCategory(String category) {
-    // ตรวจสอบว่า category ที่เลือกมีอยู่ใน savedCategories หรือไม่
     if (savedCategories.contains(category)) {
       return _questions.where((question) => question.category == category).toList();
     } else {
-      // ถ้า category ไม่มีใน savedCategories ก็คืนค่าเป็นลิสต์ว่าง
       return [];
     }
   }
-
 
   void saveCategoryFromInput() async {
     if (categoryTitleController.text.isNotEmpty) {
@@ -225,7 +217,7 @@ class QuestionController extends GetxController with GetSingleTickerProviderStat
       );
       categoryTitleController.clear();
       categorySubtitleController.clear();
-      await loadCategoriesFromFirestore(); // reload after saving
+      await loadCategoriesFromFirestore();
       update();
       Get.snackbar("Saved", "Category created successfully");
     }
@@ -236,7 +228,13 @@ class QuestionController extends GetxController with GetSingleTickerProviderStat
     super.onInit();
     await loadCategoriesFromFirestore();
     await loadQuestionsFromFirestore();
-    _pageController = PageController();
+    _pageController = PageController(); // สำรองไว้ใน onInit สำหรับครั้งแรก
     update();
+  }
+
+  @override
+  void onClose() {
+    _pageController.dispose();
+    super.onClose();
   }
 }

@@ -15,6 +15,7 @@ import '../../../views/main/footer.dart';
 import '../../firebase_options.dart';
 import 'enroll mobile.dart';
 import 'enrolled.dart';
+import 'maincontent.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,6 +41,8 @@ class _EnrollState extends State<Enroll> {
   bool isLoggedIn = false;
   String profilePath = 'assets/images/default_profile.jpg';
 
+  bool alreadyEnrolled = false;
+
   final String videoUrl = 'https://www.youtube.com/watch?v=1D0jAfm18rw';
 
   final List<Map<String, String>> courseSections = [
@@ -57,11 +60,32 @@ class _EnrollState extends State<Enroll> {
     },
   ];
 
+  Future<void> checkIfEnrolled() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? studentId = prefs.getString('studentId');
+
+      if (studentId != null) {
+        final firestore = FirebaseFirestore.instance;
+        final snapshot = await firestore
+            .collection('enrollments')
+            .where('studentId', isEqualTo: studentId)
+            .where('courseId', isEqualTo: 'FLTR101')
+            .get();
+
+        setState(() {
+          alreadyEnrolled = snapshot.docs.isNotEmpty;
+        });
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     checkLoginStatus();
-    fetchAndSaveStudentId(); // เรียกใช้ฟังก์ชันนี้เพื่อลงทะเบียน studentId
+    fetchAndSaveStudentId().then((_) => checkIfEnrolled());
   }
 
   Future<void> fetchAndSaveStudentId() async {
@@ -200,24 +224,29 @@ class _EnrollState extends State<Enroll> {
                       child: ElevatedButton(
                         onPressed: () async {
                           if (isLoggedIn) {
-                            SharedPreferences prefs = await SharedPreferences.getInstance();
-                            String? studentId = prefs.getString('studentId'); // ดึง studentId จาก SharedPreferences
+                            if (alreadyEnrolled) {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const MainContentPage(lessonId: 'FLTR101')));
+                            } else {
+                              SharedPreferences prefs = await SharedPreferences.getInstance();
+                              String? studentId = prefs.getString('studentId');
 
-                            if (studentId != null) {
-                              final firestore = FirebaseFirestore.instance;
+                              if (studentId != null) {
+                                final firestore = FirebaseFirestore.instance;
 
-                              // บันทึกข้อมูลการลงทะเบียนคอร์สลงใน Firestore
-                              await firestore.collection('enrollments').add({
-                                'studentId': studentId, // ใช้ studentId ที่ได้จาก SharedPreferences
-                                'courseId': 'CMM214',
-                                'enrolledAt': Timestamp.now(), // เวลาที่สมัคร
-                              });
+                                await firestore.collection('enrollments').add({
+                                  'studentId': studentId,
+                                  'courseId': 'FLTR101',
+                                  'enrolledAt': Timestamp.now(),
+                                });
 
-                              // ย้ายไปหน้า EnrolledPage
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));
+                                setState(() {
+                                  alreadyEnrolled = true;
+                                });
+
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));
+                              }
                             }
                           } else {
-                            // ยังไม่ได้ Login -> ไปหน้า Login ก่อน
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => const LoginRegisterPage(showLogin: true)),
@@ -229,7 +258,10 @@ class _EnrollState extends State<Enroll> {
                           padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 18),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                         ),
-                        child: const Text('Register the course', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold,color: Colors.white)),
+                        child: Text(
+                          alreadyEnrolled ? 'Go to course' : 'Register the course',
+                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
                       ),
                     ),
                   ],

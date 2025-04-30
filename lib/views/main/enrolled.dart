@@ -14,6 +14,7 @@ import '../../../views/main/navbar.dart';
 import '../../../views/main/footer.dart';
 import '../../controllers/progress_controller.dart';
 import '../../firebase_options.dart';
+import '../../models/progress_model.dart';
 import 'enroll mobile.dart';
 
 void main() async {
@@ -51,7 +52,10 @@ class _EnrolledPageState extends State<EnrolledPage> {
   void initState() {
     super.initState();
     checkLoginStatus();
-    loadEnrolledCourses();
+    Future.microtask(() async {
+      await fetchAndSaveStudentId();
+      loadEnrolledCourses();
+    });
   }
 
   Future<void> fetchAndSaveStudentId() async {
@@ -368,7 +372,7 @@ class _CompletedList extends StatelessWidget {
   }
 }
 
-class _CourseCard extends StatelessWidget {
+class _CourseCard extends StatefulWidget {
   final String courseId;
   final DateTime enrolledAt;
   final Function(String) onCancelEnrollment;
@@ -381,13 +385,41 @@ class _CourseCard extends StatelessWidget {
   });
 
   @override
+  State<_CourseCard> createState() => _CourseCardState();
+}
+
+class _CourseCardState extends State<_CourseCard> {
+  double progress = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProgress();
+  }
+
+  Future<void> _loadProgress() async {
+    // ดึงค่า progress จาก Firebase หรือ ProgressController
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final lessonId = widget.courseId;
+
+    // สมมติว่า ProgressController มีฟังก์ชันในการดึงค่า progress
+    ProgressModel? model = await ProgressController().getProgress(userId, lessonId);
+    double progressValue = model?.progress ?? 0.0;
+
+
+    setState(() {
+      progress = progressValue;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     String courseName = 'Unknown Course';
-    if (courseId == 'CMM214') {
+    if (widget.courseId == 'FLTR101') {
       courseName = 'CMM214 Animation Fundamental';
     }
 
-    String formattedDate = "${enrolledAt.day.toString().padLeft(2, '0')}/${enrolledAt.month.toString().padLeft(2, '0')}/${enrolledAt.year}";
+    String formattedDate = "${widget.enrolledAt.day.toString().padLeft(2, '0')}/${widget.enrolledAt.month.toString().padLeft(2, '0')}/${widget.enrolledAt.year}";
 
     return Container(
       width: double.infinity,
@@ -411,7 +443,8 @@ class _CourseCard extends StatelessWidget {
               'assets/images/animation_subject.jpg',
               fit: BoxFit.cover,
               width: double.infinity,
-              height: double.infinity,),
+              height: double.infinity,
+            ),
           ),
           const SizedBox(width: 26),
           Expanded(
@@ -427,10 +460,6 @@ class _CourseCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Learning progress: 0%',
-                  style: TextStyle(color: Color(0xFF2865a4)),
-                ),
                 Text(
                   'Started learning on: $formattedDate',
                   style: const TextStyle(color: Color(0xFF2865a4)),
@@ -441,7 +470,12 @@ class _CourseCard extends StatelessWidget {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const MainContentPage(lessonId: 'FLTR101')));
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MainContentPage(lessonId: widget.courseId),
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF349c94),
@@ -461,7 +495,7 @@ class _CourseCard extends StatelessWidget {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          onCancelEnrollment(courseId);
+                          widget.onCancelEnrollment(widget.courseId);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF349c94),

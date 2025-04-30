@@ -38,6 +38,12 @@ class _BodyQuizState extends State<BodyQuiz> {
       });
     });
   }
+  // void startTimer() {
+  //   _timer?.cancel(); // เคลียร์ของเก่า
+  //   _timer = Timer.periodic(Duration(seconds: 1), (_) {
+  //     Get.find<QuestionController>().incrementTime();
+  //   });
+  // }
 
   @override
   void dispose() {

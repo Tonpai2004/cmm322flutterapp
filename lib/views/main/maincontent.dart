@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contentpagecmmapp/views/main/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import '../../controllers/progress_controller.dart';
 import '../quiz/quiz_screen.dart';
 import 'enroll mobile.dart';
@@ -58,28 +60,51 @@ class _MainContentPageState extends State<MainContentPage> {
   bool isLoggedIn = false;
   String profilePath = 'assets/images/grayprofile.png';
 
-  final int totalVideos = 5;
+  final int totalChapters = 4;
+  final Map<int, bool> videoWatched = {};
+  final Map<int, bool> postTestDone = {};
+  final Map<int, bool> chapterCompleted = {};
+
   final Set<int> watchedVideos = {};
   final ProgressController progressController = ProgressController();
   double progress = 0.0;
 
-  void updateProgress(int videoIndex) {
+  void markVideoWatched(int chapterNumber) {
+    videoWatched[chapterNumber] = true;
+    _checkChapterCompletion(chapterNumber);
+  }
+
+  void markPostTestDone(int chapterNumber) {
+    postTestDone[chapterNumber] = true;
+    _checkChapterCompletion(chapterNumber);
+  }
+
+  void _checkChapterCompletion(int chapterNumber) {
+    if (videoWatched[chapterNumber] == true && postTestDone[chapterNumber] == true) {
+      if (chapterCompleted[chapterNumber] != true) {
+        chapterCompleted[chapterNumber] = true;
+        _updateProgress();
+      }
+    }
+  }
+
+  void _updateProgress() {
     setState(() {
-      watchedVideos.add(videoIndex);
-      progress = watchedVideos.length / totalVideos;
+      progress = chapterCompleted.length / totalChapters;
     });
 
-    // Save progress to Firestore
     if (isLoggedIn) {
       final userId = FirebaseAuth.instance.currentUser!.uid;
       progressController.saveProgress(userId, widget.lessonId, progress);
     }
   }
 
+
   @override
   void initState() {
     super.initState();
     checkLoginStatus();
+
   }
 
   void checkLoginStatus() async {
@@ -88,9 +113,11 @@ class _MainContentPageState extends State<MainContentPage> {
         if (user != null) {
           isLoggedIn = true;
           _loadUserProfile(user.uid); // เปลี่ยนเป็นรูปโปรไฟล์เมื่อ login
+          loadProgress();
         } else {
           isLoggedIn = false;
           profilePath = 'assets/images/default_profile.jpg'; // รูปที่ใช้ตอนไม่ได้ล็อกอิน
+          progress = 0.0;
         }
       });
     });
@@ -407,7 +434,10 @@ class _MainContentPageState extends State<MainContentPage> {
                               videos: videoList,
                               chapterNumber: index + 1,
                               onVideoWatched: (chapterNumber) {
-                                updateProgress(chapterNumber); // call ตัวที่มีใน MainContentPage
+                                markVideoWatched(chapterNumber);
+                              },
+                              onPostTestDone: (chapterNumber) {
+                                markPostTestDone(chapterNumber);
                               },
                             );
                           }),
@@ -434,6 +464,7 @@ class ExpandableLessonTile extends StatefulWidget {
   final List<Map<String, String>> videos;
 
   final void Function(int index)? onVideoWatched;
+  final void Function(int index)? onPostTestDone;
 
   ExpandableLessonTile({
     Key? key,
@@ -441,6 +472,7 @@ class ExpandableLessonTile extends StatefulWidget {
     required this.videos,
     required this.chapterNumber,
     this.onVideoWatched,
+    this.onPostTestDone,
   }) : super(key: key);
 
   @override
@@ -493,28 +525,22 @@ class _ExpandableLessonTileState extends State<ExpandableLessonTile> {
               color: Colors.white,
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(1.0)),
             ),
-            padding: const EdgeInsets.symmetric(
-              vertical: 10.0,
-              horizontal: 20.0,
-            ),
+            padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
             child: Column(
               children: widget.videos.map((video) {
                 return InkWell(
                   onTap: () {
                     if (video['title'] != 'Post Test') {
-                      widget.onVideoWatched?.call(widget.chapterNumber); // บันทึกความคืบหน้าก่อน
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => MainContentVideoPage(
-                            videoTitle: video['title']!,
-                            videoUrl: video['url'] ?? '', // ป้องกัน null
-                            chapter: widget.lessonTitle,
-                          ),
+                      widget.onVideoWatched?.call(widget.chapterNumber);
+                      Get.to(
+                            () => MainContentVideoPage(
+                          videoTitle: video['title']!,
+                          videoUrl: video['url'] ?? '',
+                          chapter: widget.lessonTitle,
                         ),
                       );
                     } else {
-                      // เมื่อเจอ Post Test ให้ไปที่ QuizScreen โดยเช็ค chapterNumber
+                      widget.onPostTestDone?.call(widget.chapterNumber);
                       String category = '';
                       switch (widget.chapterNumber) {
                         case 1:
@@ -530,20 +556,16 @@ class _ExpandableLessonTileState extends State<ExpandableLessonTile> {
                           category = "CMM214 : 4 Lighting";
                           break;
                         default:
-                          category = "CMM214 : Unknown"; // ถ้าไม่ใช่บทที่ 1-4
+                          category = "CMM214 : Unknown";
                       }
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => QuizScreen(
-                            category: category,
-                          ),
+                      Get.to(
+                            () => QuizScreen(
+                          category: category,
                         ),
                       );
                     }
                   },
-
                   child: Column(
                     children: [
                       Row(
@@ -569,8 +591,8 @@ class _ExpandableLessonTileState extends State<ExpandableLessonTile> {
                 );
               }).toList(),
             ),
-
           ),
+
         const SizedBox(height: 12.0),
       ],
     );
