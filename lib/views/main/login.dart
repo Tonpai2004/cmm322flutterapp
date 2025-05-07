@@ -1,9 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:contentpagecmmapp/views/main/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'enroll mobile.dart';
 import 'enrolled.dart';
 import 'homepage.dart';
-import 'mockup_profile.dart';
 import 'support_page.dart';
 import 'navbar.dart';
 import '../../controllers/auth_controller.dart';
@@ -60,6 +61,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
   @override
   void initState() {
     super.initState();
+    checkLoginStatus();
 
     // ตรวจสอบสถานะผู้ใช้เมื่อเริ่มต้น
     final user = authController.currentUser;
@@ -96,6 +98,30 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
     // กำหนดค่าเริ่มต้นให้ showLoginForm และ showRegisterForm
     showLoginForm = widget.showLogin;
     showRegisterForm = widget.showRegister;
+  }
+
+  void checkLoginStatus() async {
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      setState(() {
+        if (user != null) {
+          isLoggedIn = true;
+          _loadUserProfile(user.uid); // เปลี่ยนเป็นรูปโปรไฟล์เมื่อ login
+        } else {
+          isLoggedIn = false;
+          profilePath = 'assets/images/default_profile.jpg'; // รูปที่ใช้ตอนไม่ได้ล็อกอิน
+        }
+      });
+    });
+  }
+
+  Future<void> _loadUserProfile(String userId) async {
+    final doc = await FirebaseFirestore.instance.collection('students').doc(userId).get();
+    if (doc.exists) {
+      final data = doc.data();
+      setState(() {
+        profilePath = data?['profileImagePath'] ?? 'assets/images/grayprofile.png';
+      });
+    }
   }
 
 
@@ -150,8 +176,14 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
               onProfileTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const MockProfilePage()),
-                );
+                  MaterialPageRoute(builder: (context) => const ProfilePage()),
+                ).then((updatedImagePath) {
+                  if (updatedImagePath != null) {
+                    setState(() {
+                      profilePath = updatedImagePath;  // อัพเดตรูปโปรไฟล์ที่นี่
+                    });
+                  }
+                });
               },
               onLogout: () async {
                 await FirebaseAuth.instance.signOut();

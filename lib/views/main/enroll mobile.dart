@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:contentpagecmmapp/views/main/profile_page.dart';
 import 'package:contentpagecmmapp/views/main/support_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -10,7 +12,6 @@ import 'enrolled.dart';
 import 'homepage.dart';
 import 'enroll.dart';
 import 'login.dart';
-import 'mockup_profile.dart';
 import 'navbar.dart';
 
 class WorkshopData {
@@ -43,7 +44,10 @@ void main() async {
 }
 
 class EnrollMobile extends StatefulWidget {
-  const EnrollMobile({super.key});
+  final bool preselectStatus;
+  final bool preselectSubject;
+  final String? preferSubject;
+  const EnrollMobile({super.key, this.preselectStatus = false, this.preselectSubject = false, this.preferSubject});
 
   @override
   _EnrollMobileState createState() => _EnrollMobileState();
@@ -157,40 +161,91 @@ class _EnrollMobileState extends State<EnrollMobile> {
         ),
       ),
       child: Row(
-        children: [
-          Transform.scale(
-            scale: 1.1,
-            child: Checkbox(
-              value: headerChecked,
-              onChanged: onChanged,
-              activeColor: Color(0xFF54EDDC),
-              side: const BorderSide(color: Colors.white, width: 2),
-            ),
+      children: [
+        Transform.scale(
+          scale: 1.1,
+          child: Checkbox(
+            value: headerChecked,
+            onChanged: onChanged,
+            activeColor: Color(0xFF54EDDC),
+            side: const BorderSide(color: Colors.white, width: 2),
           ),
-          const SizedBox(width: 6),
-          Text(
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
             title,
             style: const TextStyle(color: Colors.white, fontSize: 20),
+            overflow: TextOverflow.ellipsis,
           ),
-        ],
-      ),
+        ),
+      ],
+    ),
+
     );
   }
 
   @override
   void initState() {
     super.initState();
+
+    if (widget.preselectStatus) {
+      _statusHeaderChecked = true;
+      _ongoing = true;
+      _upcoming = true;
+    }
+    if (widget.preselectSubject) {
+      _subjectCategoriesHeaderChecked = true;
+      _iotDev = true;
+      _animation = true;
+      _production = true;
+      _graphics = true;
+      _business = true;
+    }
+    if (widget.preferSubject != null) {
+      switch (widget.preferSubject) {
+        case 'IOT & Dev':
+          _iotDev = true;
+          break;
+        case 'Animation':
+          _animation = true;
+          break;
+        case 'Production':
+          _production = true;
+          break;
+        case 'Graphics':
+          _graphics = true;
+          break;
+        case 'Business':
+          _business = true;
+          break;
+      }
+    }
+    checkLoginStatus();
+  }
+
+  void checkLoginStatus() async {
     FirebaseAuth.instance.authStateChanges().listen((user) {
       setState(() {
         if (user != null) {
           isLoggedIn = true;
-          profilePath = 'assets/images/default_profile.jpg';
+          _loadUserProfile(user.uid); // เปลี่ยนเป็นรูปโปรไฟล์เมื่อ login
         } else {
           isLoggedIn = false;
-          profilePath = 'assets/images/grayprofile.png';
+          profilePath = 'assets/images/default_profile.jpg'; // รูปที่ใช้ตอนไม่ได้ล็อกอิน
         }
       });
     });
+  }
+
+  Future<void> _loadUserProfile(String userId) async {
+    final doc = await FirebaseFirestore.instance.collection('students').doc(userId).get();
+    if (doc.exists) {
+      final data = doc.data();
+      setState(() {
+        profilePath = data?['profileImagePath'] ?? 'assets/images/grayprofile.png';
+      });
+    }
   }
 
   @override
@@ -242,7 +297,7 @@ class _EnrollMobileState extends State<EnrollMobile> {
                       _buildFilterOption('Upcoming', _upcoming, (val) => setState(() => _upcoming = val!)),
                       SizedBox(height: 10),
 
-                      _buildHeader('Subject Categories', _subjectCategoriesHeaderChecked, (val) {
+                      _buildHeader('Subjects', _subjectCategoriesHeaderChecked, (val) {
                         setState(() {
                           _subjectCategoriesHeaderChecked = val!;
                           _iotDev = val;
@@ -277,8 +332,8 @@ class _EnrollMobileState extends State<EnrollMobile> {
                           _english = val;
                         });
                       }),
-                      _buildFilterOption('Thai', _english, (val) => setState(() => _english = val!)),
-                      _buildFilterOption('English', _thai, (val) => setState(() => _thai = val!)),
+                      _buildFilterOption('Thai', _thai, (val) => setState(() => _thai = val!)),
+                      _buildFilterOption('English', _english, (val) => setState(() => _english = val!)),
                     ],
                   ),
                 ),
@@ -349,7 +404,7 @@ class _EnrollMobileState extends State<EnrollMobile> {
                       if (_thai && workshop.subject.contains('แอนิเมชัน')) {
                         return true;
                       }
-                      if (_english && workshop.code.contains('Animation')) {
+                      if (_english && workshop.subject.contains('Animation')) {
                         return true;
                       }
 
@@ -417,8 +472,14 @@ class _EnrollMobileState extends State<EnrollMobile> {
               onProfileTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const MockProfilePage()),
-                );
+                  MaterialPageRoute(builder: (context) => const ProfilePage()),
+                ).then((updatedImagePath) {
+                  if (updatedImagePath != null) {
+                    setState(() {
+                      profilePath = updatedImagePath;  // อัพเดตรูปโปรไฟล์ที่นี่
+                    });
+                  }
+                });
               },
               onLogout: () async {
                 await FirebaseAuth.instance.signOut();
@@ -490,11 +551,25 @@ class _EnrollMobileState extends State<EnrollMobile> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Image.network(
-                          data.imageUrl, // ใส่ URL ของภาพที่ได้จาก data.imageUrl
+                          data.imageUrl,
                           fit: BoxFit.cover,
                           width: double.infinity,
                           height: double.infinity,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Image.asset(
+                              'assets/images/studio.jpg',
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
+                            );
+                          },
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return const Center(child: CircularProgressIndicator());
+                          },
                         ),
+
+
                       ),
                       const SizedBox(height: 0),
                       Container(

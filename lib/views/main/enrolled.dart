@@ -1,4 +1,5 @@
 import 'package:contentpagecmmapp/views/main/maincontent.dart';
+import 'package:contentpagecmmapp/views/main/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -8,12 +9,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../views/main/homepage.dart';
 import '../../../views/main/login.dart';
-import '../../../views/main/mockup_profile.dart';
 import '../../../views/main/support_page.dart';
 import '../../../views/main/navbar.dart';
 import '../../../views/main/footer.dart';
 import '../../controllers/progress_controller.dart';
 import '../../firebase_options.dart';
+import '../../models/progress_model.dart';
 import 'enroll mobile.dart';
 
 void main() async {
@@ -51,7 +52,10 @@ class _EnrolledPageState extends State<EnrolledPage> {
   void initState() {
     super.initState();
     checkLoginStatus();
-    loadEnrolledCourses();
+    Future.microtask(() async {
+      await fetchAndSaveStudentId();
+      loadEnrolledCourses();
+    });
   }
 
   Future<void> fetchAndSaveStudentId() async {
@@ -75,20 +79,27 @@ class _EnrolledPageState extends State<EnrolledPage> {
   }
 
   void checkLoginStatus() async {
-    FirebaseAuth.instance.authStateChanges().listen((user) async {
+    FirebaseAuth.instance.authStateChanges().listen((user) {
       setState(() {
         if (user != null) {
           isLoggedIn = true;
-          profilePath = 'assets/images/default_profile.jpg';
-          fetchAndSaveStudentId().then((_) {
-            loadEnrolledCourses();
-          });
+          _loadUserProfile(user.uid); // เปลี่ยนเป็นรูปโปรไฟล์เมื่อ login
         } else {
           isLoggedIn = false;
-          profilePath = 'assets/images/grayprofile.png';
+          profilePath = 'assets/images/default_profile.jpg'; // รูปที่ใช้ตอนไม่ได้ล็อกอิน
         }
       });
     });
+  }
+
+  Future<void> _loadUserProfile(String userId) async {
+    final doc = await FirebaseFirestore.instance.collection('students').doc(userId).get();
+    if (doc.exists) {
+      final data = doc.data();
+      setState(() {
+        profilePath = data?['profileImagePath'] ?? 'assets/images/grayprofile.png';
+      });
+    }
   }
 
   void enrollCourse(String courseId) async {
@@ -232,8 +243,14 @@ class _EnrolledPageState extends State<EnrolledPage> {
                 onProfileTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const MockProfilePage()),
-                  );
+                    MaterialPageRoute(builder: (context) => const ProfilePage()),
+                  ).then((updatedImagePath) {
+                    if (updatedImagePath != null) {
+                      setState(() {
+                        profilePath = updatedImagePath;
+                      });
+                    }
+                  });
                 },
                 onLogout: () async {
                   await FirebaseAuth.instance.signOut();
@@ -242,6 +259,7 @@ class _EnrolledPageState extends State<EnrolledPage> {
                   });
                 },
               ),
+
               Expanded(
                 child: Column(
                   children: [
@@ -327,7 +345,7 @@ class _InProgressList extends StatelessWidget {
       child: Column(
         children: courses.map((course) {
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             child: _CourseCard(
               courseId: course['courseId'],
               enrolledAt: course['enrolledAt'],
@@ -354,7 +372,7 @@ class _CompletedList extends StatelessWidget {
   }
 }
 
-class _CourseCard extends StatelessWidget {
+class _CourseCard extends StatefulWidget {
   final String courseId;
   final DateTime enrolledAt;
   final Function(String) onCancelEnrollment;
@@ -367,13 +385,41 @@ class _CourseCard extends StatelessWidget {
   });
 
   @override
+  State<_CourseCard> createState() => _CourseCardState();
+}
+
+class _CourseCardState extends State<_CourseCard> {
+  double progress = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProgress();
+  }
+
+  Future<void> _loadProgress() async {
+    // ดึงค่า progress จาก Firebase หรือ ProgressController
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final lessonId = widget.courseId;
+
+    // สมมติว่า ProgressController มีฟังก์ชันในการดึงค่า progress
+    ProgressModel? model = await ProgressController().getProgress(userId, lessonId);
+    double progressValue = model?.progress ?? 0.0;
+
+
+    setState(() {
+      progress = progressValue;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     String courseName = 'Unknown Course';
-    if (courseId == 'CMM214') {
+    if (widget.courseId == 'FLTR101') {
       courseName = 'CMM214 Animation Fundamental';
     }
 
-    String formattedDate = "${enrolledAt.day.toString().padLeft(2, '0')}/${enrolledAt.month.toString().padLeft(2, '0')}/${enrolledAt.year}";
+    String formattedDate = "${widget.enrolledAt.day.toString().padLeft(2, '0')}/${widget.enrolledAt.month.toString().padLeft(2, '0')}/${widget.enrolledAt.year}";
 
     return Container(
       width: double.infinity,
@@ -397,7 +443,8 @@ class _CourseCard extends StatelessWidget {
               'assets/images/animation_subject.jpg',
               fit: BoxFit.cover,
               width: double.infinity,
-              height: double.infinity,),
+              height: double.infinity,
+            ),
           ),
           const SizedBox(width: 26),
           Expanded(
@@ -413,10 +460,6 @@ class _CourseCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Learning progress: 0%',
-                  style: TextStyle(color: Color(0xFF2865a4)),
-                ),
                 Text(
                   'Started learning on: $formattedDate',
                   style: const TextStyle(color: Color(0xFF2865a4)),
@@ -427,7 +470,12 @@ class _CourseCard extends StatelessWidget {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const MainContentPage(lessonId: 'FLTR101')));
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MainContentPage(lessonId: widget.courseId),
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF349c94),
@@ -447,7 +495,7 @@ class _CourseCard extends StatelessWidget {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          onCancelEnrollment(courseId);
+                          widget.onCancelEnrollment(widget.courseId);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF349c94),

@@ -1,11 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../enroll mobile.dart';
 import '../enrolled.dart';
 import '../homepage.dart';
 import '../login.dart';
-import '../mockup_profile.dart';
 import '../navbar.dart';
 import '../footer.dart';
+import '../profile_page.dart';
 import '../support_page.dart';
 
 class CourseRegistrationIssuePage extends StatefulWidget {
@@ -33,13 +35,23 @@ class _CourseRegistrationIssuePageState extends State<CourseRegistrationIssuePag
       setState(() {
         if (user != null) {
           isLoggedIn = true;
-          profilePath = 'assets/images/default_profile.jpg'; // เปลี่ยนเป็นรูปโปรไฟล์เมื่อ login
+          _loadUserProfile(user.uid); // เปลี่ยนเป็นรูปโปรไฟล์เมื่อ login
         } else {
           isLoggedIn = false;
-          profilePath = 'assets/images/grayprofile.png'; // รูปที่ใช้ตอนไม่ได้ล็อกอิน
+          profilePath = 'assets/images/default_profile.jpg'; // รูปที่ใช้ตอนไม่ได้ล็อกอิน
         }
       });
     });
+  }
+
+  Future<void> _loadUserProfile(String userId) async {
+    final doc = await FirebaseFirestore.instance.collection('students').doc(userId).get();
+    if (doc.exists) {
+      final data = doc.data();
+      setState(() {
+        profilePath = data?['profileImagePath'] ?? 'assets/images/grayprofile.png';
+      });
+    }
   }
 
   @override
@@ -63,6 +75,9 @@ class _CourseRegistrationIssuePageState extends State<CourseRegistrationIssuePag
                     goToHome: () {
                       setState(() => _isMenuOpen = false);
                       Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+                    },
+                    onSearch: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrollMobile()));
                     },
                     onMyCourses: () {
                       Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));
@@ -92,8 +107,14 @@ class _CourseRegistrationIssuePageState extends State<CourseRegistrationIssuePag
                     onProfileTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const MockProfilePage()),
-                      );
+                        MaterialPageRoute(builder: (context) => const ProfilePage()),
+                      ).then((updatedImagePath) {
+                        if (updatedImagePath != null) {
+                          setState(() {
+                            profilePath = updatedImagePath;  // อัพเดตรูปโปรไฟล์ที่นี่
+                          });
+                        }
+                      });
                     },
                     onLogout: () async {
                       await FirebaseAuth.instance.signOut();
