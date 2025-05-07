@@ -60,7 +60,7 @@ class _QuizCategoryScreenState extends State<QuizCategoryScreen> {
     }
   }
 
-  final QuestionController _questionController = Get.put(QuestionController());
+  final QuestionController _questionController = Get.find<QuestionController>();
 
   @override
   Widget build(BuildContext context) {

@@ -13,7 +13,7 @@ class AdminDashboard extends StatefulWidget {
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
-  final QuestionController questionController = Get.put(QuestionController());
+  final QuestionController questionController = Get.find<QuestionController>();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String _collectionCategories = 'categories'; // เปลี่ยนชื่อให้ตรงกับคอลเล็กชันใน Firestore
 

@@ -13,7 +13,7 @@ class QuestionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    QuestionController questionController = Get.put(QuestionController());
+    QuestionController questionController = Get.find<QuestionController>();
     return Container(
       margin: EdgeInsets.symmetric(horizontal: kPadding),
       padding: EdgeInsets.all(kPadding),

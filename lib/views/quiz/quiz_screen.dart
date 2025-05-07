@@ -27,24 +27,25 @@ class _QuizScreenState extends State<QuizScreen> {
   bool isLoggedIn = false;
   String profilePath = 'assets/images/default_profile.jpg';
 
-  QuestionController questionController = Get.put(QuestionController());
+  late final QuestionController questionController;
 
   @override
   void initState() {
     super.initState();
     checkLoginStatus();
+    questionController = Get.put(QuestionController());
 
     // รอให้ build เสร็จค่อย reset และโหลดคำถาม
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final controller = Get.find<QuestionController>();
 
       controller.resetQuiz();
+      print("resetquiz");
       controller.setFilteredQuestions(widget.category);
       // ✅ ไม่จำเป็นต้อง jumpToPage(0) ตรงนี้ เพราะ resetQuiz สร้าง PageController ใหม่แล้ว
       // หากใช้ jumpToPage ต้องรอให้ pageController ถูกใช้งานก่อนถึงจะ jump ได้
     });
   }
-
 
 
   void checkLoginStatus() async {

@@ -17,7 +17,7 @@ class CheckfaultCard extends StatelessWidget {
   Widget build(BuildContext context) {
 
     // ใช้ questionController เพื่อดึงข้อมูลคำถามและลำดับคำถาม
-    QuestionController questionController = Get.put(QuestionController());
+    QuestionController questionController = Get.find<QuestionController>();
 
     // คำนวณลำดับของคำถาม
     int questionIndex = questionController.filteredQuestion.indexOf(question) + 1;

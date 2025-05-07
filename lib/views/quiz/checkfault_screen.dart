@@ -16,7 +16,8 @@ class CheckfaultScreen extends StatefulWidget {
   const CheckfaultScreen({
     super.key,
     required this.category,
-    required this.seconds, required this.currentIndex,
+    required this.seconds,
+    required this.currentIndex,
   });
 
   @override
@@ -28,7 +29,7 @@ class _CheckfaultScreenState extends State<CheckfaultScreen> {
   bool _isMenuOpen = false;
   bool isLoggedIn = false;
 
-  QuestionController questionController = Get.put(QuestionController());
+  QuestionController questionController = Get.find<QuestionController>();
 
   late final PageController _pageController = PageController();
 
@@ -56,15 +57,17 @@ class _CheckfaultScreenState extends State<CheckfaultScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Completed Question'),
-          content: const Text(
-            'Do you want to go to the next lesson?',
-          ),
+          content: const Text('Do you want to go to the next lesson?'),
           actions: <Widget>[
             TextButton(
               child: const Text('Yes'),
-              onPressed: widget.currentIndex > 0
-                  ? () => navigateToVideo(widget.currentIndex + 1, widget.currentIndex)
-                  : null,
+              onPressed:
+                  widget.currentIndex > 0
+                      ? () => navigateToVideo(
+                        widget.currentIndex + 1,
+                        widget.currentIndex,
+                      )
+                      : null,
             ),
           ],
         );
@@ -103,7 +106,8 @@ class _CheckfaultScreenState extends State<CheckfaultScreen> {
                 onMyCourses: () {},
                 onSupport: () {},
                 onLogin: () {},
-                onRegister: () {}, isLoggedIn: isLoggedIn,
+                onRegister: () {},
+                isLoggedIn: isLoggedIn,
               ),
 
               // Background
@@ -242,7 +246,7 @@ class _CheckfaultScreenState extends State<CheckfaultScreen> {
                     IconButton(
                       icon: const Icon(Icons.arrow_back, size: 32),
                       onPressed: () {
-                        if (_pageController.page! > 0) {
+                        if ((_pageController.page ?? 0) > 0) {
                           _pageController.previousPage(
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeInOut,
@@ -254,7 +258,7 @@ class _CheckfaultScreenState extends State<CheckfaultScreen> {
                     IconButton(
                       icon: const Icon(Icons.arrow_forward, size: 32),
                       onPressed: () {
-                        if (_pageController.page! <
+                        if ((_pageController.page ?? 0) <
                             questionController.filteredQuestion.length - 1) {
                           _pageController.nextPage(
                             duration: const Duration(milliseconds: 300),
@@ -282,34 +286,45 @@ class _CheckfaultScreenState extends State<CheckfaultScreen> {
   }
 
   void navigateToVideo(int newIndex, int currentIndex) {
-    final video = videoList[newIndex];
-    final isNext = newIndex > currentIndex;
+    if (newIndex >= 0 && newIndex < videoList.length) {
+      final video = videoList[newIndex];
+      final isNext = newIndex > currentIndex;
 
-    Navigator.pushReplacement(
-      context,
-      PageRouteBuilder(
-        transitionDuration: const Duration(milliseconds: 400),
-        pageBuilder: (context, animation, secondaryAnimation) {
-          return MainContentVideoPage(
-            videoTitle: video.title,
-            videoUrl: video.url,
-            chapter: video.chapter,
-          );
-        },
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const beginLeft = Offset(1.0, 0.0);   // จากขวาไปซ้าย
-          const end = Offset.zero;
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: 400),
+          pageBuilder: (context, animation, secondaryAnimation) {
+            return MainContentVideoPage(
+              videoTitle: video.title,
+              videoUrl: video.url,
+              chapter: video.chapter,
+            );
+          },
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const beginLeft = Offset(1.0, 0.0); // จากขวาไปซ้าย
+            const end = Offset.zero;
 
-          const beginRight = Offset(-1.0, 0.0); // จากซ้ายไปขวา
-          final tween = Tween<Offset>(begin: isNext ? beginLeft : beginRight, end: end)
-              .chain(CurveTween(curve: Curves.easeInOut));
+            const beginRight = Offset(-1.0, 0.0); // จากซ้ายไปขวา
+            final tween = Tween<Offset>(
+              begin: isNext ? beginLeft : beginRight,
+              end: end,
+            ).chain(CurveTween(curve: Curves.easeInOut));
 
-          return SlideTransition(
-            position: animation.drive(tween),
-            child: child,
-          );
-        },
-      ),
-    );
+            return SlideTransition(
+              position: animation.drive(tween),
+              child: child,
+            );
+          },
+        ),
+      );
+    } else {
+      // อาจจะกลับไป Home หรือแสดง Error
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+
+    }
   }
 }

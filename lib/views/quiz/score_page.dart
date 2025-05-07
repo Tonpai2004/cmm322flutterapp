@@ -30,16 +30,24 @@ class _ScorePageState extends State<ScorePage> {
   bool isLoggedIn = false;
   String? profilePath = 'assets/images/default_profile.jpg';
 
-  QuestionController questionController = Get.put(QuestionController());
+  QuestionController questionController = Get.find<QuestionController>();
 
   @override
   void initState() {
     super.initState();
+
+    // Register controller if not already registered
+    if (!Get.isRegistered<QuestionController>()) {
+      Get.put(QuestionController());
+    }
+
     checkLoginStatus();
+
     final arguments = Get.arguments as Map<String, dynamic>?;
     _seconds = arguments?['time'] ?? 0;
     _category = arguments?['category'] ?? 'Unknown';
   }
+
 
   void checkLoginStatus() async {
     FirebaseAuth.instance.authStateChanges().listen((user) {
@@ -285,9 +293,9 @@ class _ScorePageState extends State<ScorePage> {
                             FractionallySizedBox(
                               widthFactor: 0.7,
                               child: ElevatedButton(
-                                onPressed: currentIndex > 0
-                                    ? () => navigateToVideo(currentIndex + 1, currentIndex)
-                                    : null,
+                                onPressed: () {
+                                  navigateToVideo(currentIndex + 1, currentIndex);
+                                },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: kDarkPrimaryColor,
                                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -359,6 +367,18 @@ class _ScorePageState extends State<ScorePage> {
   }
 
   void navigateToVideo(int newIndex, int currentIndex) {
+    // ลบ controller เก่า
+    Get.delete<QuestionController>();
+
+    // ถ้า newIndex เกินจำนวนวิดีโอ ให้กลับไปหน้า main content
+    if (newIndex >= videoList.length) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()), // หรือ MainContentVideoPage เริ่มต้น
+      );
+      return;
+    }
+
     final video = videoList[newIndex];
     final isNext = newIndex > currentIndex;
 
@@ -379,8 +399,9 @@ class _ScorePageState extends State<ScorePage> {
           const beginRight = Offset(-1.0, 0.0);
 
           final tween = Tween<Offset>(
-              begin: isNext ? beginLeft : beginRight, end: end)
-              .chain(CurveTween(curve: Curves.easeInOut));
+            begin: isNext ? beginLeft : beginRight,
+            end: end,
+          ).chain(CurveTween(curve: Curves.easeInOut));
 
           return SlideTransition(
             position: animation.drive(tween),
@@ -390,4 +411,6 @@ class _ScorePageState extends State<ScorePage> {
       ),
     );
   }
+
+
 }

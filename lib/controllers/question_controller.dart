@@ -128,7 +128,6 @@ class QuestionController extends GetxController with GetSingleTickerProviderStat
     _questionNumber.value = 1;
     seconds.value = 0;
     _filteredQuestion.clear();
-
     _pageController = PageController();
 
     update();
@@ -164,6 +163,7 @@ class QuestionController extends GetxController with GetSingleTickerProviderStat
 
       update();
     } else {
+
       Get.to(() => const ScorePage(), arguments: {
         'time': seconds.value,
         'category': selectedCategory,
