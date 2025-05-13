@@ -204,6 +204,7 @@ class _EnrolledPageState extends State<EnrolledPage> {
           backgroundColor: const Color(0xFFB2F1E6),
           body: Column(
             children: [
+              // ⬆️ Top Navigation
               ResponsiveNavbar(
                 isMobile: isMobile,
                 isMenuOpen: _isMenuOpen,
@@ -225,17 +226,13 @@ class _EnrolledPageState extends State<EnrolledPage> {
                 onLogin: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginRegisterPage(showLogin: true),
-                    ),
+                    MaterialPageRoute(builder: (context) => const LoginRegisterPage(showLogin: true)),
                   );
                 },
                 onRegister: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginRegisterPage(showRegister: true),
-                    ),
+                    MaterialPageRoute(builder: (context) => const LoginRegisterPage(showRegister: true)),
                   );
                 },
                 isLoggedIn: isLoggedIn,
@@ -260,6 +257,7 @@ class _EnrolledPageState extends State<EnrolledPage> {
                 },
               ),
 
+              // ⬇️ Middle - Title + Tabs + Tab Content
               Expanded(
                 child: Column(
                   children: [
@@ -304,10 +302,15 @@ class _EnrolledPageState extends State<EnrolledPage> {
                       ),
                     ),
                     const SizedBox(height: 10),
+
+                    // 👇 Tab Content Scrollable Area
                     Expanded(
                       child: TabBarView(
                         children: [
-                          _InProgressList(courses: enrolledCourses, cancelEnrollment: cancelEnrollment),
+                          _InProgressList(
+                            courses: enrolledCourses,
+                            cancelEnrollment: cancelEnrollment,
+                          ),
                           const _CompletedList(),
                         ],
                       ),
@@ -315,6 +318,8 @@ class _EnrolledPageState extends State<EnrolledPage> {
                   ],
                 ),
               ),
+
+              // ⬇️ Bottom Footer - Always below
               const Footer(),
             ],
           ),
@@ -484,9 +489,9 @@ class _CourseCardState extends State<_CourseCard> {
                             borderRadius: BorderRadius.circular(18),
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Go to Course',
-                          style: TextStyle(fontSize: 12, color: Colors.white),
+                          style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.03, color: Colors.white),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -504,9 +509,9 @@ class _CourseCardState extends State<_CourseCard> {
                             borderRadius: BorderRadius.circular(18),
                           ),
                         ),
-                        child: const Text(
+                        child:  Text(
                           'Cancel Enrollment',
-                          style: TextStyle(fontSize: 12, color: Colors.white),
+                          style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.03, color: Colors.white),
                           textAlign: TextAlign.center,
                         ),
                       ),

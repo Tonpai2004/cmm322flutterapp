@@ -277,6 +277,7 @@ class _CheckfaultScreenState extends State<CheckfaultScreen> {
               ),
 
               // Footer
+              const SizedBox(height: 32,),
               const Footer(),
             ],
           ),

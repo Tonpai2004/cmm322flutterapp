@@ -46,8 +46,14 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.14.3
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/default_profile.jpg"
 
   flutter_lints: ^5.0.0
+
 
 flutter:
 

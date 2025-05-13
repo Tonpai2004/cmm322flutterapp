@@ -372,14 +372,19 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  widget.videoTitle,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF202D61),
+                                Expanded( // ✅ เพิ่มตรงนี้
+                                  child: Text(
+                                    widget.videoTitle,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: Color(0xFF202D61),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: MediaQuery.of(context).size.width * 0.05,
+                                    ),
                                   ),
                                 ),
+                                const SizedBox(width: 40),
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFFCFFFFA),
@@ -465,6 +470,7 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
             ),
 
             // ✅ Footer
+            const SizedBox(height: 32,),
             const Footer(),
           ],
         ),

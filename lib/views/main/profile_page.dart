@@ -287,7 +287,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final isMobile = screenWidth < 876;
 
     return Scaffold(
-      body: Stack(
+      body: SafeArea(child: Stack(
         children: [
           Positioned.fill(
             child: Image.asset(
@@ -414,6 +414,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           ),
         ],
+      ),
       ),
     );
   }

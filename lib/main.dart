@@ -10,13 +10,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(
-    GetMaterialApp(  // ใช้ GetMaterialApp แทน MaterialApp
-      theme: ThemeData(fontFamily: 'Inter'),
-      home: SplashScreen(),  // หรือหน้าหลักที่คุณต้องการ
-    ),
-  );
+  runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

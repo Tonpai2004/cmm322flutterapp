@@ -304,10 +304,10 @@ class _MainContentPageState extends State<MainContentPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
+                                Text(
                                   'CMM214 Animation Fundamental',
                                   style: TextStyle(
-                                    fontSize: 18,
+                                    fontSize: MediaQuery.of(context).size.width * 0.045,
                                     fontWeight: FontWeight.bold,
                                     color: Color(0xFF202D61),
                                   ),
@@ -451,6 +451,7 @@ class _MainContentPageState extends State<MainContentPage> {
             ),
 
             // Footer
+            const SizedBox(height: 32,),
             const Footer(),
           ],
         ),
@@ -572,13 +573,21 @@ class _ExpandableLessonTileState extends State<ExpandableLessonTile> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            video['title']!,
-                            style: const TextStyle(fontSize: 15),
+                          Expanded( // ✅ เพิ่มตรงนี้
+                            child: Text(
+                              video['title'] ?? '',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: MediaQuery.of(context).size.width * 0.035,
+                              ),
+                            ),
                           ),
+                          const SizedBox(width: 40), // ✅ กันข้อความชนกัน
                           Text(
-                            video['duration']!,
-                            style: const TextStyle(fontSize: 14),
+                            video['duration'] ?? '',
+                            style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,),
                           ),
                         ],
                       ),

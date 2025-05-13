@@ -145,11 +145,11 @@ class _LearnMorePageState extends State<LearnMorePage> {
                         ),
                       ),
                       child: Column(
-                        children: const [
+                        children: [
                           Text(
                             'CMM',
                             style: TextStyle(
-                              fontSize: 60,
+                              fontSize: MediaQuery.of(context).size.width * 0.15,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                               fontFamily: 'Inter',
@@ -160,7 +160,7 @@ class _LearnMorePageState extends State<LearnMorePage> {
                             'Computer Science-Multimedia',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: MediaQuery.of(context).size.width * 0.05,
                               color: Colors.white,
                               fontFamily: 'Inter',
                             ),
@@ -173,7 +173,7 @@ class _LearnMorePageState extends State<LearnMorePage> {
                       width: double.infinity,
 
                       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
-                      child: const Text(
+                      child: Text(
                         'CMM, or ComputerScience & Multimedia, '
                             'is a specialized academic unit under King Mongkut’s University of Technology Thonburi (KMUTT). '
                             'It was established to support interdisciplinary learning and research that address real-world challenges '
@@ -183,7 +183,7 @@ class _LearnMorePageState extends State<LearnMorePage> {
                             'technology, design, and business to foster holistic problem-solving and lifelong learning.',
                         textAlign: TextAlign.justify,
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: MediaQuery.of(context).size.width * 0.04,
                           color: Color(0xFF212D61),
                           height: 1.6,
                         ),
@@ -204,11 +204,11 @@ class _LearnMorePageState extends State<LearnMorePage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 20),
                   ],
                 ),
               ),
             ),
+            const SizedBox(height: 30),
             const Footer(),
           ],
         ),

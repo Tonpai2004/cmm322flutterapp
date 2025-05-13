@@ -28,12 +28,12 @@ class Footer extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 5.0),
-            const Text(
+            SizedBox(height: 0.0),
+            Text(
               'Department of Computer and Technology, \nFaculty of Industrial Education and Technology\n'
               "King Mongkut's University of Technology Thonburi\n"
               'Tel : 02-470-8500 | Email : orgcomit@kmutt.ac.th',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, fontFamily: 'Inter'),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width * 0.035, fontFamily: 'Inter'),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 8.0),

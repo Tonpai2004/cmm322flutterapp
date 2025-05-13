@@ -192,11 +192,11 @@ class _RenewMainPageState extends State<HomePage> {
                             ),
                           ),
                           child: Column(
-                            children: const [
+                            children:  [
                               Text(
                                 'CMM',
                                 style: TextStyle(
-                                  fontSize: 60,
+                                  fontSize: MediaQuery.of(context).size.width * 0.15,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                   fontFamily: 'Inter',
@@ -207,7 +207,7 @@ class _RenewMainPageState extends State<HomePage> {
                                 'Access learning resources anytime, anywhere.',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 20,
+                                  fontSize: MediaQuery.of(context).size.width * 0.05,
                                   color: Colors.white,
                                   fontFamily: 'Inter',
                                 ),
@@ -243,18 +243,18 @@ class _RenewMainPageState extends State<HomePage> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
+                                     Text(
                                       'What is "CMM" ?',
                                       style: TextStyle(
-                                        fontSize: 18,
+                                        fontSize: MediaQuery.of(context).size.width * 0.045,
                                         fontWeight: FontWeight.bold,
                                         fontFamily: 'Inter',
                                       ),
                                     ),
                                     const SizedBox(height: 5),
-                                    const Text(
+                                    Text(
                                       'CMM, or ComputerScience & Multimedia....',
-                                      style: TextStyle(fontSize: 13, fontFamily: 'Inter'),
+                                      style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.03, fontFamily: 'Inter'),
                                       textAlign: TextAlign.justify,
                                     ),
 
@@ -270,12 +270,12 @@ class _RenewMainPageState extends State<HomePage> {
                                           );
                                         },
                                         borderRadius: BorderRadius.circular(4),
-                                        child: const Padding(
+                                        child:  Padding(
                                           padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                                           child: Text(
                                             'Learn more...',
                                             style: TextStyle(
-                                              fontSize: 15,
+                                              fontSize: MediaQuery.of(context).size.width * 0.035,
                                               fontWeight: FontWeight.bold,
                                               fontFamily: 'Inter',
                                             ),
@@ -302,9 +302,9 @@ class _RenewMainPageState extends State<HomePage> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text(
+                                    Text(
                                       'Subject Category',
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, fontFamily: 'Inter'),
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width * 0.055, fontFamily: 'Inter'),
                                     ),
                                     GestureDetector(
                                       onTap: () {
@@ -313,9 +313,9 @@ class _RenewMainPageState extends State<HomePage> {
                                           MaterialPageRoute(builder: (context) => const EnrollMobile(preselectSubject: true)), // ใส่หน้าที่ต้องการไป
                                         );
                                       },
-                                      child: const Text(
+                                      child: Text(
                                         'ALL',
-                                        style: TextStyle(fontSize: 16, fontFamily: 'Inter', color: Colors.black), // ใส่สีให้ดูเหมือนกดได้
+                                        style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.055, fontFamily: 'Inter', color: Colors.black), // ใส่สีให้ดูเหมือนกดได้
                                       ),
                                     ),
                                   ],
@@ -381,7 +381,7 @@ class _RenewMainPageState extends State<HomePage> {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
+              style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
             ),
           ],
         ),
@@ -396,7 +396,7 @@ class _RenewMainPageState extends State<HomePage> {
       padding: const EdgeInsets.only(top: 20),
       color: const Color(0xFFCFFFFA),
       width: double.infinity,
-      height: 330,
+      height: 420,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -407,7 +407,7 @@ class _RenewMainPageState extends State<HomePage> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, fontFamily: 'Inter'),
+                  style:  TextStyle(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width * 0.055, fontFamily: 'Inter'),
                 ),
                 GestureDetector(
                   onTap: () {
@@ -416,9 +416,9 @@ class _RenewMainPageState extends State<HomePage> {
                       MaterialPageRoute(builder: (context) => const EnrollMobile(preselectStatus: true)), // ใส่หน้าที่ต้องการไป
                     );
                   },
-                  child: const Text(
+                  child: Text(
                     'ALL',
-                    style: TextStyle(fontSize: 16, fontFamily: 'Inter', color: Colors.black), // ใส่สีให้ดูเหมือนกดได้
+                    style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.055, fontFamily: 'Inter', color: Colors.black), // ใส่สีให้ดูเหมือนกดได้
                   ),
                 ),
               ],
@@ -454,7 +454,7 @@ class _RenewMainPageState extends State<HomePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              height: 120,
+                              height: 200,
                               decoration: const BoxDecoration(
                                 color: Color(0xFFF7F7F7),
                                 borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
@@ -477,16 +477,16 @@ class _RenewMainPageState extends State<HomePage> {
                                 children: [
                                   Text(
                                     event['title'] ?? '',
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width * 0.05,),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   const SizedBox(height: 2),
-                                  Text('By ${event['by']}',style: TextStyle(fontWeight: FontWeight.bold),),
+                                  Text('By ${event['by']}',style: TextStyle(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width * 0.035,),),
                                   const SizedBox(height: 2),
-                                  Text('Course Start: ${event['start']}'),
+                                  Text('Course Start: ${event['start']}',style: TextStyle(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width * 0.035,),),
                                   const SizedBox(height: 2),
-                                  Text('Course End: ${event['end']}'),
+                                  Text('Course End: ${event['end']}',style: TextStyle(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width * 0.035,),),
                                   const SizedBox(height: 5),
 
                                 ],

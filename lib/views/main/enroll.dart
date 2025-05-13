@@ -208,14 +208,14 @@ class _EnrollState extends State<Enroll> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('CMM214 Animation Fundamental', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                    Text('CMM214 Animation Fundamental', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.06, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
-                    const Text('Subject Category: Animation'),
-                    const Text('Course Code: 212224236248'),
-                    const Text('Number of Lessons: 4 lessons'),
-                    const Text('Participants Enrolled: 92 people'),
-                    const Text('Highest Score in This Course: 20 points'),
-                    const Text('Course End Date: 05/04/2025'),
+                    Text('Subject Category: Animation', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04,)),
+                    Text('Course Code: 212224236248', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04,)),
+                    Text('Number of Lessons: 4 lessons', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04,)),
+                    Text('Participants Enrolled: 92 people', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04,)),
+                    Text('Highest Score in This Course: 20 points', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04,)),
+                    Text('Course End Date: 05/04/2025', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04,)),
                     const SizedBox(height: 16),
                     const SizedBox(height: 0),
                     const Divider(color: Color(0xFF6BFFEE), thickness: 4),
@@ -260,7 +260,7 @@ class _EnrollState extends State<Enroll> {
                         ),
                         child: Text(
                           alreadyEnrolled ? 'Go to course' : 'Register the course',
-                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+                          style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.055, fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                       ),
                     ),
@@ -277,9 +277,9 @@ class _EnrollState extends State<Enroll> {
               // ---------------------------
               // วิดีโอแนะนำคอร์สเรียน
               // ---------------------------
-              const Text(
+              Text(
                 'Introduction Video for the Course',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF2865A5)),
+                style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.05, fontWeight: FontWeight.bold, color: Color(0xFF2865A5)),
               ),
               const SizedBox(height: 12),
               Container(
@@ -330,7 +330,7 @@ class _EnrollState extends State<Enroll> {
               width: double.infinity,
               child: Text(
                 title,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width * 0.05,),
               ),
             ),
             Padding(
@@ -347,7 +347,7 @@ class _EnrollState extends State<Enroll> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text('Mr. Jirut Patanachan',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16),),
+                  Text('Mr. Jirut Patanachan',style: TextStyle(fontWeight: FontWeight.bold,fontSize: MediaQuery.of(context).size.width * 0.045,),),
                 ],
               ),
             ),
@@ -373,14 +373,14 @@ class _EnrollState extends State<Enroll> {
               width: double.infinity,
               child: Text(
                 title,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width * 0.05,),
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
                 description,
-                style: const TextStyle(fontSize: 16, color: Color(0xFF3FA099)),
+                style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04, color: Color(0xFF3FA099)),
               ),
             ),
             SizedBox(height: 40),
