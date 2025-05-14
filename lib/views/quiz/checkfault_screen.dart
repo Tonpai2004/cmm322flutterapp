@@ -77,45 +77,40 @@ class _CheckfaultScreenState extends State<CheckfaultScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // 2อันนี้เอาไว้วัดขนาดหน้าจอ อย่าลืมเอาไปใส่ในไฟล์ด้วย จะได้ Responsive menu ของ Navbar ได้ถูกต้อง //
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 876;
-
-    // Get total number of questions
     int totalQuestions = questionController.filteredQuestion.length;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: kBackground,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Navbar
-              ResponsiveNavbar(
-                isMobile: isMobile,
-                isMenuOpen: _isMenuOpen,
-                toggleMenu: () => setState(() => _isMenuOpen = !_isMenuOpen),
-                goToHome: () {
-                  setState(() => _isMenuOpen = false);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomePage()),
-                  );
-                },
-                onMyCourses: () {},
-                onSupport: () {},
-                onLogin: () {},
-                onRegister: () {},
-                isLoggedIn: isLoggedIn,
-              ),
+        child: Column(
+          children: [
+            // Navbar
+            ResponsiveNavbar(
+              isMobile: isMobile,
+              isMenuOpen: _isMenuOpen,
+              toggleMenu: () => setState(() => _isMenuOpen = !_isMenuOpen),
+              goToHome: () {
+                setState(() => _isMenuOpen = false);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomePage()),
+                );
+              },
+              onMyCourses: () {},
+              onSupport: () {},
+              onLogin: () {},
+              onRegister: () {},
+              isLoggedIn: isLoggedIn,
+            ),
 
-              // Background
-              Container(color: kBackground),
-
-              SafeArea(
+            // Content Scroll
+            Expanded(
+              child: SingleChildScrollView(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     children: [
                       const SizedBox(height: 20),
@@ -132,15 +127,12 @@ class _CheckfaultScreenState extends State<CheckfaultScreen> {
                               color: kDarkSecondaryColor,
                             ),
                           ),
-                          Align(
-                            alignment: Alignment.center,
-                            child: Text(
-                              formatTime(widget.seconds),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                                color: kDarkPrimaryColor,
-                              ),
+                          Text(
+                            formatTime(widget.seconds),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: kDarkPrimaryColor,
                             ),
                           ),
                         ],
@@ -148,27 +140,22 @@ class _CheckfaultScreenState extends State<CheckfaultScreen> {
 
                       const SizedBox(height: 12),
 
-                      // Progress bar and question counter
+                      // Progress
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Obx(
-                            () => Text(
-                              "${questionController.questionNumber.value}/$totalQuestions",
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: kDarkSecondaryColor,
-                              ),
+                          Obx(() => Text(
+                            "${questionController.questionNumber.value}/$totalQuestions",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: kDarkSecondaryColor,
                             ),
-                          ),
-
+                          )),
                           Obx(() {
-                            double progress =
-                                totalQuestions > 0
-                                    ? questionController.questionNumber.value /
-                                        totalQuestions
-                                    : 0.0;
+                            double progress = totalQuestions > 0
+                                ? questionController.questionNumber.value / totalQuestions
+                                : 0.0;
 
                             return Expanded(
                               child: Padding(
@@ -195,96 +182,85 @@ class _CheckfaultScreenState extends State<CheckfaultScreen> {
                           }),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-              ),
 
-              const SizedBox(height: 30),
-              // กล่อง: คุณตอบไม่ถูกต้อง
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 6,
-                        offset: Offset(0, 2),
+                      const SizedBox(height: 30),
+
+                      // Card กล่องคำถามผิด
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 6,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        height: 350, // ความสูงของ Card
+                        child: PageView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          onPageChanged: questionController.updateTheQnNum,
+                          itemCount: questionController.filteredQuestion.length,
+                          controller: _pageController,
+                          itemBuilder: (context, index) {
+                            return CheckfaultCard(
+                              question: questionController.filteredQuestion[index],
+                            );
+                          },
+                        ),
                       ),
+
+                      const SizedBox(height: 16),
+
+                      // Navigation Buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back, size: 32),
+                            onPressed: () {
+                              if ((_pageController.page ?? 0) > 0) {
+                                _pageController.previousPage(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              }
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.arrow_forward, size: 32),
+                            onPressed: () {
+                              if ((_pageController.page ?? 0) < totalQuestions - 1) {
+                                _pageController.nextPage(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              } else {
+                                showNextLessonDialog(context);
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 30),
                     ],
                   ),
-                  padding: const EdgeInsets.all(16),
-                  child: SizedBox(
-                    height: 350, // Set the desired height here
-                    child: PageView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      onPageChanged: questionController.updateTheQnNum,
-                      itemCount: questionController.filteredQuestion.length,
-                      controller: _pageController,
-                      itemBuilder: (context, index) {
-                        return CheckfaultCard(
-                          question: questionController.filteredQuestion[index],
-                        );
-                      },
-                    ),
-                  ),
                 ),
               ),
+            ),
 
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, size: 32),
-                      onPressed: () {
-                        if ((_pageController.page ?? 0) > 0) {
-                          _pageController.previousPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
-                        }
-                      },
-                    ),
-                    // เปลี่ยนปุ่มถัดไปเป็น Next Lesson เมื่อคำถามหมด
-                    IconButton(
-                      icon: const Icon(Icons.arrow_forward, size: 32),
-                      onPressed: () {
-                        if ((_pageController.page ?? 0) <
-                            questionController.filteredQuestion.length - 1) {
-                          _pageController.nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
-                        } else {
-                          // เปลี่ยนข้อความเป็น Next Lesson เมื่อคำถามหมด
-                          showNextLessonDialog(
-                            context,
-                          ); // ฟังก์ชั่นแสดง dialog หรือการเปลี่ยนหน้าต่อไป
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
-
-              // Footer
-              const SizedBox(height: 32,),
-              const Footer(),
-            ],
-          ),
+            // Footer แยกไว้ใต้สุด
+            const Footer(),
+          ],
         ),
       ),
     );
   }
+
 
   void navigateToVideo(int newIndex, int currentIndex) {
     if (newIndex >= 0 && newIndex < videoList.length) {

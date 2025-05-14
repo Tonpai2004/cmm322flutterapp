@@ -81,75 +81,72 @@ class _QuizScreenState extends State<QuizScreen> {
       extendBodyBehindAppBar: true,
       backgroundColor: kBackground,
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: IntrinsicHeight(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Navbar
-                      ResponsiveNavbar(
-                        isMobile: isMobile,
-                        isMenuOpen: _isMenuOpen,
-                        toggleMenu: () => setState(() => _isMenuOpen = !_isMenuOpen),
-                        goToHome: () {
-                          setState(() => _isMenuOpen = false);
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
-                        },
-                        onSearch: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EnrollMobile())),
-                        onMyCourses: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EnrolledPage())),
-                        onSupport: () {
-                          setState(() => _isMenuOpen = false);
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportPage()));
-                        },
-                        onLogin: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginRegisterPage(showLogin: true))),
-                        onRegister: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginRegisterPage(showRegister: true))),
-                        isLoggedIn: isLoggedIn,
-                        profileImagePath: profilePath,
-                        onProfileTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage())).then((updatedImagePath) {
-                            if (updatedImagePath != null) {
-                              setState(() => profilePath = updatedImagePath);
-                            }
-                          });
-                        },
-                        onLogout: () async {
-                          await FirebaseAuth.instance.signOut();
-                          setState(() => isLoggedIn = false);
-                        },
-                      ),
+        child: Column(
+          children: [
+            // Navbar
+            ResponsiveNavbar(
+              isMobile: isMobile,
+              isMenuOpen: _isMenuOpen,
+              toggleMenu: () => setState(() => _isMenuOpen = !_isMenuOpen),
+              goToHome: () {
+                setState(() => _isMenuOpen = false);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+              },
+              onSearch: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EnrollMobile())),
+              onMyCourses: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EnrolledPage())),
+              onSupport: () {
+                setState(() => _isMenuOpen = false);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportPage()));
+              },
+              onLogin: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginRegisterPage(showLogin: true))),
+              onRegister: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginRegisterPage(showRegister: true))),
+              isLoggedIn: isLoggedIn,
+              profileImagePath: profilePath,
+              onProfileTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage())).then((updatedImagePath) {
+                  if (updatedImagePath != null) {
+                    setState(() => profilePath = updatedImagePath);
+                  }
+                });
+              },
+              onLogout: () async {
+                await FirebaseAuth.instance.signOut();
+                setState(() => isLoggedIn = false);
+              },
+            ),
 
-                      // Quiz Section (if available)
-                      GetX<QuestionController>(
-                        builder: (controller) {
-                          if (controller.filteredQuestion.isEmpty) {
-                            return Center(child: Padding(
-                              padding: const EdgeInsets.all(24.0),
-                              child: Text("No questions available for this category."),
-                            ));
-                          }
+            // เนื้อหา Quiz + Scroll ได้
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+                  child: GetX<QuestionController>(
+                    builder: (controller) {
+                      if (controller.filteredQuestion.isEmpty) {
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(24.0),
+                            child: Text("No questions available for this category."),
+                          ),
+                        );
+                      }
 
-                          return SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.65,
-                            child: BodyQuiz(category: widget.category),
-                          );
-                        },
-                      ),
-
-                      const Spacer(),
-                      // Footer stays at the bottom
-                      const Footer(),
-                    ],
+                      return SizedBox(
+                        height: MediaQuery.of(context).size.height * 1,
+                        child: BodyQuiz(category: widget.category),
+                      );
+                    },
                   ),
                 ),
               ),
-            );
-          },
+            ),
+
+            // Footer อยู่ล่างสุด
+            const Footer(),
+          ],
         ),
       ),
     );
   }
+
 }

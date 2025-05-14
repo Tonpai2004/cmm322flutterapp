@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contentpagecmmapp/views/main/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -145,24 +146,35 @@ class _LearnMorePageState extends State<LearnMorePage> {
                         ),
                       ),
                       child: Column(
-                        children: [
-                          Text(
-                            'CMM',
-                            style: TextStyle(
-                              fontSize: MediaQuery.of(context).size.width * 0.15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontFamily: 'Inter',
+                        children:  [
+                          SizedBox(
+                            width: 300, // ควบคุมความกว้างเอง
+                            child: AutoSizeText(
+                              'CMM',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontFamily: 'Inter',
+                              ),
+                              maxFontSize: 60,
+                              minFontSize: 40, // บังคับไม่ให้มันเล็กเกิน
+                              maxLines: 1,
+                              textAlign: TextAlign.center,
                             ),
                           ),
                           SizedBox(height: 0),
-                          Text(
-                            'Computer Science-Multimedia',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: MediaQuery.of(context).size.width * 0.05,
-                              color: Colors.white,
-                              fontFamily: 'Inter',
+                          SizedBox(
+                            width: 300,
+                            child: AutoSizeText(
+                              'Access learning resources anytime, anywhere.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'Inter',
+                              ),
+                              maxFontSize: 40,
+                              minFontSize: 20,
+                              maxLines: 5,
                             ),
                           ),
                         ],
@@ -173,19 +185,23 @@ class _LearnMorePageState extends State<LearnMorePage> {
                       width: double.infinity,
 
                       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
-                      child: Text(
-                        'CMM, or ComputerScience & Multimedia, '
-                            'is a specialized academic unit under King Mongkut’s University of Technology Thonburi (KMUTT). '
-                            'It was established to support interdisciplinary learning and research that address real-world challenges '
-                            'through the integration of knowledge from various fields. CMM emphasizes innovation, critical thinking, '
-                            'and collaboration across disciplines, aiming to produce graduates who are adaptable and equipped '
-                            'for diverse professional environments. The college offers unique programs that combine science, '
-                            'technology, design, and business to foster holistic problem-solving and lifelong learning.',
-                        textAlign: TextAlign.justify,
-                        style: TextStyle(
-                          fontSize: MediaQuery.of(context).size.width * 0.04,
-                          color: Color(0xFF212D61),
-                          height: 1.6,
+                      child: SizedBox(
+                        width: 500,
+                        child: AutoSizeText(
+                          'CMM, or ComputerScience & Multimedia, '
+                              'is a specialized academic unit under King Mongkut’s University of Technology Thonburi (KMUTT). '
+                              'It was established to support interdisciplinary learning and research that address real-world challenges '
+                              'through the integration of knowledge from various fields. CMM emphasizes innovation, critical thinking, '
+                              'and collaboration across disciplines, aiming to produce graduates who are adaptable and equipped '
+                              'for diverse professional environments. The college offers unique programs that combine science, '
+                              'technology, design, and business to foster holistic problem-solving and lifelong learning.',
+                          textAlign: TextAlign.justify,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                          ),
+                          maxFontSize: 30,
+                          minFontSize: 18,
+                          maxLines: 25,
                         ),
                       ),
                     ),

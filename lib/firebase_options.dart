@@ -31,7 +31,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
+              'you can reconfigure this by running the FlutterFire CLI again.',
         );
       default:
         throw UnsupportedError(
@@ -46,7 +46,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '771244686030',
     projectId: 'cmm322-pj',
     authDomain: 'cmm322-pj.firebaseapp.com',
-    storageBucket: 'cmm322-pj.firebasestorage.app',
+    storageBucket: 'cmm322-pj.firebasestorage.com',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -54,7 +54,7 @@ class DefaultFirebaseOptions {
     appId: '1:771244686030:android:928f5c3a3a33d29b732e9f',
     messagingSenderId: '771244686030',
     projectId: 'cmm322-pj',
-    storageBucket: 'cmm322-pj.firebasestorage.app',
+    storageBucket: 'cmm322-pj.firebasestorage.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -62,7 +62,7 @@ class DefaultFirebaseOptions {
     appId: '1:771244686030:ios:3fed3f98429c293c732e9f',
     messagingSenderId: '771244686030',
     projectId: 'cmm322-pj',
-    storageBucket: 'cmm322-pj.firebasestorage.app',
+    storageBucket: 'cmm322-pj.firebasestorage.com',
     iosBundleId: 'com.example.cmmcontent.contentpagecmmapp',
   );
 
@@ -71,7 +71,7 @@ class DefaultFirebaseOptions {
     appId: '1:771244686030:ios:3fed3f98429c293c732e9f',
     messagingSenderId: '771244686030',
     projectId: 'cmm322-pj',
-    storageBucket: 'cmm322-pj.firebasestorage.app',
+    storageBucket: 'cmm322-pj.firebasestorage.com',
     iosBundleId: 'com.example.cmmcontent.contentpagecmmapp',
   );
 
@@ -81,7 +81,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '771244686030',
     projectId: 'cmm322-pj',
     authDomain: 'cmm322-pj.firebaseapp.com',
-    storageBucket: 'cmm322-pj.firebasestorage.app',
+    storageBucket: 'cmm322-pj.firebasestorage.com',
   );
 
 }

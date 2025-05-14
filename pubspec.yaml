@@ -42,15 +42,17 @@ dependencies:
   path_provider: ^2.1.2
 
   auto_size_text: ^3.0.0
+  flutter_screenutil: ^5.9.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: ^0.14.3
-flutter_icons:
+flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/images/default_profile.jpg"
+  background_color: "#60f3d6"
 
   flutter_lints: ^5.0.0
 

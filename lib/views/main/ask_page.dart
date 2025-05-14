@@ -67,7 +67,7 @@ class AskPage extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: const Text(
-                        'Have you used this \nwebsite before?',
+                        'Have you used this \napp before?',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 20,

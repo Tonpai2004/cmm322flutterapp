@@ -96,269 +96,273 @@ class _ScorePageState extends State<ScorePage> {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: IntrinsicHeight(
-                  child: Column(
-                    children: [
-                      // Navbar
-                      ResponsiveNavbar(
-                        isMobile: isMobile,
-                        isMenuOpen: _isMenuOpen,
-                        toggleMenu: () => setState(() => _isMenuOpen = !_isMenuOpen),
-                        goToHome: () {
-                          setState(() => _isMenuOpen = false);
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
-                        },
-                        onSearch: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrollMobile()));
-                        },
-                        onMyCourses: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));
-                        },
-                        onSupport: () {
-                          setState(() => _isMenuOpen = false);
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const SupportPage()));
-                        },
-                        onLogin: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const LoginRegisterPage(showLogin: true)),
-                          );
-                        },
-                        onRegister: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const LoginRegisterPage(showRegister: true)),
-                          );
-                        },
-                        isLoggedIn: isLoggedIn,
-                        profileImagePath: profilePath,
-                        onProfileTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const ProfilePage()),
-                          ).then((updatedImagePath) {
-                            if (updatedImagePath != null) {
-                              setState(() {
-                                profilePath = updatedImagePath;
-                              });
-                            }
-                          });
-                        },
-                        onLogout: () async {
-                          await FirebaseAuth.instance.signOut();
-                          setState(() {
-                            isLoggedIn = false;
-                          });
-                        },
-                      ),
+            return Column(
+              children: [
+                Expanded(
+                    child: SingleChildScrollView(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                        child: IntrinsicHeight(
+                          child: Column(
+                            children: [
+                              // Navbar
+                              ResponsiveNavbar(
+                                isMobile: isMobile,
+                                isMenuOpen: _isMenuOpen,
+                                toggleMenu: () => setState(() => _isMenuOpen = !_isMenuOpen),
+                                goToHome: () {
+                                  setState(() => _isMenuOpen = false);
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+                                },
+                                onSearch: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrollMobile()));
+                                },
+                                onMyCourses: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const EnrolledPage()));
+                                },
+                                onSupport: () {
+                                  setState(() => _isMenuOpen = false);
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const SupportPage()));
+                                },
+                                onLogin: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const LoginRegisterPage(showLogin: true)),
+                                  );
+                                },
+                                onRegister: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const LoginRegisterPage(showRegister: true)),
+                                  );
+                                },
+                                isLoggedIn: isLoggedIn,
+                                profileImagePath: profilePath,
+                                onProfileTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const ProfilePage()),
+                                  ).then((updatedImagePath) {
+                                    if (updatedImagePath != null) {
+                                      setState(() {
+                                        profilePath = updatedImagePath;
+                                      });
+                                    }
+                                  });
+                                },
+                                onLogout: () async {
+                                  await FirebaseAuth.instance.signOut();
+                                  setState(() {
+                                    isLoggedIn = false;
+                                  });
+                                },
+                              ),
 
-                      const SizedBox(height: 20),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  _category,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                    color: kDarkSecondaryColor,
-                                  ),
-                                ),
-                                Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    formatTime(_seconds),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                      color: kDarkPrimaryColor,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Obx(() => Text(
-                                  "${questionController.questionNumber.value}/$totalQuestions",
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: kDarkSecondaryColor,
-                                  ),
-                                )),
-                                Obx(() {
-                                  double progress = totalQuestions > 0
-                                      ? questionController.questionNumber.value / totalQuestions
-                                      : 0.0;
-                                  return Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 20),
-                                      child: Container(
-                                        height: 6,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(3),
-                                          color: kLightPrimaryColor.withOpacity(0.8),
+                              const SizedBox(height: 20),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 24),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          _category,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20,
+                                            color: kDarkSecondaryColor,
+                                          ),
                                         ),
-                                        child: FractionallySizedBox(
-                                          alignment: Alignment.centerLeft,
-                                          widthFactor: progress,
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(3),
-                                              color: kDarkSecondaryColor,
+                                        Align(
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            formatTime(_seconds),
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                              color: kDarkPrimaryColor,
                                             ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Obx(() => Text(
+                                          "${questionController.questionNumber.value}/$totalQuestions",
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                            color: kDarkSecondaryColor,
+                                          ),
+                                        )),
+                                        Obx(() {
+                                          double progress = totalQuestions > 0
+                                              ? questionController.questionNumber.value / totalQuestions
+                                              : 0.0;
+                                          return Expanded(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(left: 20),
+                                              child: Container(
+                                                height: 6,
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(3),
+                                                  color: kLightPrimaryColor.withOpacity(0.8),
+                                                ),
+                                                child: FractionallySizedBox(
+                                                  alignment: Alignment.centerLeft,
+                                                  widthFactor: progress,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      borderRadius: BorderRadius.circular(3),
+                                                      color: kDarkSecondaryColor,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        }),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              const SizedBox(height: 30),
+
+                              const Text(
+                                "You scored",
+                                style: TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF212D61),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                "${questionController.numOfCorrectAns}/5 points",
+                                style: const TextStyle(
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF212D61),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                "Time spent : " + formatTime(_seconds),
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  color: Color(0xFF212D61),
+                                ),
+                              ),
+
+                              const SizedBox(height: 30),
+
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                child: Column(
+                                  children: [
+                                    FractionallySizedBox(
+                                      widthFactor: 0.7,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          Get.to(CheckfaultScreen(
+                                              category: _category,
+                                              seconds: _seconds,
+                                              currentIndex: currentIndex));
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: kDarkPrimaryColor,
+                                          padding: const EdgeInsets.symmetric(vertical: 16),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          elevation: 5,
+                                        ),
+                                        child: const Text(
+                                          "Review incorrect",
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            color: Colors.white,
                                           ),
                                         ),
                                       ),
                                     ),
-                                  );
-                                }),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 30),
-
-                      const Text(
-                        "You scored",
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF212D61),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "${questionController.numOfCorrectAns}/5 points",
-                        style: const TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF212D61),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        "Time spent : " + formatTime(_seconds),
-                        style: const TextStyle(
-                          fontSize: 18,
-                          color: Color(0xFF212D61),
-                        ),
-                      ),
-
-                      const SizedBox(height: 30),
-
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Column(
-                          children: [
-                            FractionallySizedBox(
-                              widthFactor: 0.7,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Get.to(CheckfaultScreen(
-                                      category: _category,
-                                      seconds: _seconds,
-                                      currentIndex: currentIndex));
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: kDarkPrimaryColor,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  elevation: 5,
-                                ),
-                                child: const Text(
-                                  "Review incorrect",
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.white,
-                                  ),
+                                    const SizedBox(height: 24),
+                                    FractionallySizedBox(
+                                      widthFactor: 0.7,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          navigateToVideo(currentIndex + 1, currentIndex);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: kDarkPrimaryColor,
+                                          padding: const EdgeInsets.symmetric(vertical: 16),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          elevation: 5,
+                                        ),
+                                        child: const Text(
+                                          "Next lesson",
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 24),
-                            FractionallySizedBox(
-                              widthFactor: 0.7,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  navigateToVideo(currentIndex + 1, currentIndex);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: kDarkPrimaryColor,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  elevation: 5,
-                                ),
-                                child: const Text(
-                                  "Next lesson",
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.white,
-                                  ),
+
+                              const SizedBox(height: 30),
+
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      children: const [
+                                        Text(
+                                          "% Learning Progress",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF212D61),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    LinearProgressIndicator(
+                                      value: categoryInt / 4.0,
+                                      backgroundColor: Colors.teal.shade100,
+                                      color: Colors.teal,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      "*Keep going!! Don’t give up yet\nYou've made it past $categoryN/4 of the content",
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                          color: Color(0xFF3FA099), fontSize: 13),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
-                          ],
+
+                              const SizedBox(height: 30),
+                            ],
+                          ),
                         ),
                       ),
-
-                      const SizedBox(height: 30),
-
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: const [
-                                Text(
-                                  "% Learning Progress",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF212D61),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            LinearProgressIndicator(
-                              value: categoryInt / 4.0,
-                              backgroundColor: Colors.teal.shade100,
-                              color: Colors.teal,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "*Keep going!! Don’t give up yet\nYou've made it past $categoryN/4 of the content",
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                  color: Color(0xFF3FA099), fontSize: 13),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 30),
-
-                      const Spacer(),
-                      const Footer(),
-                    ],
-                  ),
-                ),
-              ),
+                    ),
+                    ),
+                const Footer(),
+              ],
             );
           },
         ),

@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:contentpagecmmapp/views/main/maincontent.dart';
 import 'package:contentpagecmmapp/views/main/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -469,7 +470,7 @@ class _CourseCardState extends State<_CourseCard> {
                   'Started learning on: $formattedDate',
                   style: const TextStyle(color: Color(0xFF2865a4)),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 30),
                 Row(
                   children: [
                     Expanded(
@@ -489,10 +490,20 @@ class _CourseCardState extends State<_CourseCard> {
                             borderRadius: BorderRadius.circular(18),
                           ),
                         ),
-                        child: Text(
-                          'Go to Course',
-                          style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.03, color: Colors.white),
-                          textAlign: TextAlign.center,
+                        child:
+                        SizedBox(
+                          child: AutoSizeText(
+                            "Go to Course",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Inter',
+                            ),
+                            maxFontSize: 30,
+                            minFontSize: 15,
+                            maxLines: 4,
+                          ),
                         ),
                       ),
                     ),
@@ -509,10 +520,19 @@ class _CourseCardState extends State<_CourseCard> {
                             borderRadius: BorderRadius.circular(18),
                           ),
                         ),
-                        child:  Text(
-                          'Cancel Enrollment',
-                          style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.03, color: Colors.white),
-                          textAlign: TextAlign.center,
+                        child: SizedBox(
+                          child: AutoSizeText(
+                            "Cancel Course",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Inter',
+                            ),
+                            maxFontSize: 30,
+                            minFontSize: 15,
+                            maxLines: 4,
+                          ),
                         ),
                       ),
                     ),

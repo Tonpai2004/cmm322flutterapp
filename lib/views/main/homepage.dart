@@ -15,6 +15,7 @@ import 'support_page.dart';
 import 'navbar.dart';
 import 'footer.dart';
 
+import 'package:auto_size_text/auto_size_text.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -193,23 +194,34 @@ class _RenewMainPageState extends State<HomePage> {
                           ),
                           child: Column(
                             children:  [
-                              Text(
-                                'CMM',
-                                style: TextStyle(
-                                  fontSize: MediaQuery.of(context).size.width * 0.15,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  fontFamily: 'Inter',
+                              SizedBox(
+                                width: 300, // ควบคุมความกว้างเอง
+                                child: AutoSizeText(
+                                  'CMM',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    fontFamily: 'Inter',
+                                  ),
+                                  maxFontSize: 60,
+                                  minFontSize: 40, // บังคับไม่ให้มันเล็กเกิน
+                                  maxLines: 1,
+                                  textAlign: TextAlign.center,
                                 ),
                               ),
                               SizedBox(height: 0),
-                              Text(
-                                'Access learning resources anytime, anywhere.',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: MediaQuery.of(context).size.width * 0.05,
-                                  color: Colors.white,
-                                  fontFamily: 'Inter',
+                              SizedBox(
+                                width: 300,
+                                child: AutoSizeText(
+                                  'Access learning resources anytime, anywhere.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'Inter',
+                                  ),
+                                  maxFontSize: 40,
+                                  minFontSize: 20,
+                                  maxLines: 5,
                                 ),
                               ),
                             ],
@@ -243,19 +255,33 @@ class _RenewMainPageState extends State<HomePage> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                     Text(
-                                      'What is "CMM" ?',
-                                      style: TextStyle(
-                                        fontSize: MediaQuery.of(context).size.width * 0.045,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'Inter',
+                                    SizedBox(
+                                      width: 200,
+                                      child: AutoSizeText(
+                                        'What is "CMM" ?',
+                                        textAlign: TextAlign.start,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'Inter',
+                                        ),
+                                        maxFontSize: 40,
+                                        minFontSize: 20,
+                                        maxLines: 2,
                                       ),
                                     ),
                                     const SizedBox(height: 5),
-                                    Text(
-                                      'CMM, or ComputerScience & Multimedia....',
-                                      style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.03, fontFamily: 'Inter'),
-                                      textAlign: TextAlign.justify,
+                                    SizedBox(
+                                      width: 200,
+                                      child: AutoSizeText(
+                                        'CMM, or ComputerScience & Multimedia....',
+                                        textAlign: TextAlign.start,
+                                        style: TextStyle(
+                                          fontFamily: 'Inter',
+                                        ),
+                                        maxFontSize: 25,
+                                        minFontSize: 15,
+                                        maxLines: 5,
+                                      ),
                                     ),
 
                                     const Spacer(), // 👈 ดัน InkWell ลงล่างสุด
@@ -272,12 +298,18 @@ class _RenewMainPageState extends State<HomePage> {
                                         borderRadius: BorderRadius.circular(4),
                                         child:  Padding(
                                           padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                                          child: Text(
-                                            'Learn more...',
-                                            style: TextStyle(
-                                              fontSize: MediaQuery.of(context).size.width * 0.035,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'Inter',
+                                          child: SizedBox(
+                                            width: 500,
+                                            child: AutoSizeText(
+                                              'Learn more...',
+                                              textAlign: TextAlign.start,
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: 'Inter',
+                                              ),
+                                              maxFontSize: 25,
+                                              minFontSize: 15,
+                                              maxLines: 5,
                                             ),
                                           ),
                                         ),
@@ -302,9 +334,18 @@ class _RenewMainPageState extends State<HomePage> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                      'Subject Category',
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width * 0.055, fontFamily: 'Inter'),
+                                    SizedBox(
+                                      child: AutoSizeText(
+                                        'Subject Category',
+                                        textAlign: TextAlign.start,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'Inter',
+                                        ),
+                                        maxFontSize: 40,
+                                        minFontSize: 20,
+                                        maxLines: 2,
+                                      ),
                                     ),
                                     GestureDetector(
                                       onTap: () {
@@ -313,9 +354,19 @@ class _RenewMainPageState extends State<HomePage> {
                                           MaterialPageRoute(builder: (context) => const EnrollMobile(preselectSubject: true)), // ใส่หน้าที่ต้องการไป
                                         );
                                       },
-                                      child: Text(
-                                        'ALL',
-                                        style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.055, fontFamily: 'Inter', color: Colors.black), // ใส่สีให้ดูเหมือนกดได้
+                                      child: SizedBox(
+                                        width: 200,
+                                        child: AutoSizeText(
+                                          'ALL',
+                                          textAlign: TextAlign.end,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'Inter',
+                                          ),
+                                          maxFontSize: 40,
+                                          minFontSize: 18,
+                                          maxLines: 1,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -378,10 +429,19 @@ class _RenewMainPageState extends State<HomePage> {
               child: Icon(Icons.book, color: Colors.white, size: 34),
             ),
             const SizedBox(height: 10),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
+            SizedBox(
+              width: 200,
+              child: AutoSizeText(
+                title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Inter',
+                ),
+                maxFontSize: 25,
+                minFontSize: 16,
+                maxLines: 2,
+              ),
             ),
           ],
         ),
@@ -405,9 +465,18 @@ class _RenewMainPageState extends State<HomePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  title,
-                  style:  TextStyle(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width * 0.055, fontFamily: 'Inter'),
+                SizedBox(
+                  child: AutoSizeText(
+                    title,
+                    textAlign: TextAlign.start,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Inter',
+                    ),
+                    maxFontSize: 40,
+                    minFontSize: 20,
+                    maxLines: 2,
+                  ),
                 ),
                 GestureDetector(
                   onTap: () {
@@ -416,9 +485,19 @@ class _RenewMainPageState extends State<HomePage> {
                       MaterialPageRoute(builder: (context) => const EnrollMobile(preselectStatus: true)), // ใส่หน้าที่ต้องการไป
                     );
                   },
-                  child: Text(
-                    'ALL',
-                    style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.055, fontFamily: 'Inter', color: Colors.black), // ใส่สีให้ดูเหมือนกดได้
+                  child: SizedBox(
+                    width: 200,
+                    child: AutoSizeText(
+                      'ALL',
+                      textAlign: TextAlign.end,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Inter',
+                      ),
+                      maxFontSize: 40,
+                      minFontSize: 18,
+                      maxLines: 1,
+                    ),
                   ),
                 ),
               ],
@@ -475,20 +554,70 @@ class _RenewMainPageState extends State<HomePage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    event['title'] ?? '',
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width * 0.05,),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                  SizedBox(
+                                    width: 200,
+                                    child: AutoSizeText(
+                                      event['title'] ?? '',
+                                      textAlign: TextAlign.start,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Inter',
+                                      ),
+                                      maxFontSize: 25,
+                                      minFontSize: 18,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
                                   const SizedBox(height: 2),
-                                  Text('By ${event['by']}',style: TextStyle(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width * 0.035,),),
+                                  SizedBox(
+                                    width: 200,
+                                    child: AutoSizeText(
+                                      'By ${event['by']}',
+                                      textAlign: TextAlign.start,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Inter',
+                                      ),
+                                      maxFontSize: 25,
+                                      minFontSize: 14,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
                                   const SizedBox(height: 2),
-                                  Text('Course Start: ${event['start']}',style: TextStyle(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width * 0.035,),),
+                                  SizedBox(
+                                    width: 200,
+                                    child: AutoSizeText(
+                                      'Course Start: ${event['start']}',
+                                      textAlign: TextAlign.start,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Inter',
+                                      ),
+                                      maxFontSize: 25,
+                                      minFontSize: 14,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
                                   const SizedBox(height: 2),
-                                  Text('Course End: ${event['end']}',style: TextStyle(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width * 0.035,),),
+                                  SizedBox(
+                                    width: 200,
+                                    child: AutoSizeText(
+                                      'Course End: ${event['end']}',
+                                      textAlign: TextAlign.start,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Inter',
+                                      ),
+                                      maxFontSize: 25,
+                                      minFontSize: 14,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
                                   const SizedBox(height: 5),
-
                                 ],
                               ),
                             ),

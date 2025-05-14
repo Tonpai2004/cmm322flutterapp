@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contentpagecmmapp/views/main/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -335,12 +336,18 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
             Container(
               color: const Color(0xFFCFFFFA),
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-              child: Text(
-                'CMM214 : ${widget.chapter}',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF202D61),
+              child: SizedBox(
+                child: AutoSizeText(
+                  'CMM214 : ${widget.chapter}',
+                  textAlign: TextAlign.start,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter',
+                  ),
+                  maxFontSize: 40,
+                  minFontSize: 25,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
@@ -373,14 +380,18 @@ class _MainContentVideoPageState extends State<MainContentVideoPage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Expanded( // ✅ เพิ่มตรงนี้
-                                  child: Text(
-                                    widget.videoTitle,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: Color(0xFF202D61),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: MediaQuery.of(context).size.width * 0.05,
+                                  child: SizedBox(
+                                    child: AutoSizeText(
+                                      widget.videoTitle,
+                                      textAlign: TextAlign.start,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Inter',
+                                      ),
+                                      maxFontSize: 40,
+                                      minFontSize: 22,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ),

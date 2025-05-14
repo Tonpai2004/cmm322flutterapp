@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contentpagecmmapp/views/main/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -267,12 +268,19 @@ class _MainContentPageState extends State<MainContentPage> {
             Container(
               color: const Color(0xFFCFFFFA),
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-              child: const Text(
-                '3D ANIMATION FUNDAMENTALS',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF202D61),
+              child: SizedBox(
+                child: AutoSizeText(
+                  '3D ANIMATION FUNDAMENTALS',
+                  textAlign: TextAlign.start,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF202D61),
+                    fontFamily: 'Inter',
+                  ),
+                  maxFontSize: 40,
+                  minFontSize: 25,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
@@ -304,22 +312,34 @@ class _MainContentPageState extends State<MainContentPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  'CMM214 Animation Fundamental',
-                                  style: TextStyle(
-                                    fontSize: MediaQuery.of(context).size.width * 0.045,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF202D61),
+                                SizedBox(
+                                  child: AutoSizeText(
+                                    'CMM214 Animation Fundamental',
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(
+                                      color: Color(0xFF202D61),
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Inter',
+                                    ),
+                                    maxFontSize: 40,
+                                    minFontSize: 20,
+                                    maxLines: 2,
                                   ),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 10),
-                            const Text(
-                              'Progress in Studying',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Color(0xFF2866A5),
+                            SizedBox(
+                              child: AutoSizeText(
+                                'Progress in Studying',
+                                textAlign: TextAlign.start,
+                                style: TextStyle(
+                                  color: Color(0xFF2866A5),
+                                  fontFamily: 'Inter',
+                                ),
+                                maxFontSize: 40,
+                                minFontSize: 17,
+                                maxLines: 2,
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -574,20 +594,33 @@ class _ExpandableLessonTileState extends State<ExpandableLessonTile> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded( // ✅ เพิ่มตรงนี้
-                            child: Text(
-                              video['title'] ?? '',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: MediaQuery.of(context).size.width * 0.035,
+                            child: SizedBox(
+                              child: AutoSizeText(
+                                video['title'] ?? '',
+                                textAlign: TextAlign.start,
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                ),
+                                maxFontSize: 40,
+                                minFontSize: 17,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ),
                           const SizedBox(width: 40), // ✅ กันข้อความชนกัน
-                          Text(
-                            video['duration'] ?? '',
-                            style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,),
+                          SizedBox(
+                            child: AutoSizeText(
+                              video['duration'] ?? '',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                              ),
+                              maxFontSize: 40,
+                              minFontSize: 17,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ],
                       ),

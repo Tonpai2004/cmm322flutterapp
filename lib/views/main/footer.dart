@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -29,12 +30,21 @@ class Footer extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(height: 0.0),
-            Text(
-              'Department of Computer and Technology, \nFaculty of Industrial Education and Technology\n'
-              "King Mongkut's University of Technology Thonburi\n"
-              'Tel : 02-470-8500 | Email : orgcomit@kmutt.ac.th',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width * 0.035, fontFamily: 'Inter'),
-              textAlign: TextAlign.center,
+            SizedBox(
+              width: 500,
+              child: AutoSizeText(
+                'Department of Computer and Technology, \nFaculty of Industrial Education and Technology\n'
+                    "King Mongkut's University of Technology Thonburi\n"
+                    'Tel : 02-470-8500 | Email : orgcomit@kmutt.ac.th',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Inter',
+                ),
+                maxFontSize: 25,
+                minFontSize: 14,
+                maxLines: 5,
+              ),
             ),
             SizedBox(height: 8.0),
             Divider(color: Colors.white),

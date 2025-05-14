@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contentpagecmmapp/views/main/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -208,14 +209,92 @@ class _EnrollState extends State<Enroll> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('CMM214 Animation Fundamental', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.06, fontWeight: FontWeight.bold)),
+                    SizedBox(
+                      child: AutoSizeText(
+                        'CMM214 Animation Fundamental',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Inter',
+                        ),
+                        maxFontSize: 60,
+                        minFontSize: 30,
+                        maxLines: 2,
+                      ),
+                    ),
                     const SizedBox(height: 8),
-                    Text('Subject Category: Animation', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04,)),
-                    Text('Course Code: 212224236248', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04,)),
-                    Text('Number of Lessons: 4 lessons', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04,)),
-                    Text('Participants Enrolled: 92 people', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04,)),
-                    Text('Highest Score in This Course: 20 points', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04,)),
-                    Text('Course End Date: 05/04/2025', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04,)),
+                    SizedBox(
+                      child: AutoSizeText(
+                        'Subject Category: Animation',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                        ),
+                        maxFontSize: 40,
+                        minFontSize: 18,
+                        maxLines: 2,
+                      ),
+                    ),
+                    SizedBox(
+                      child: AutoSizeText(
+                        'Course Code: 212224236248',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                        ),
+                        maxFontSize: 40,
+                        minFontSize: 18,
+                        maxLines: 2,
+                      ),
+                    ),
+                    SizedBox(
+                      child: AutoSizeText(
+                        'Number of Lessons: 4 lessons',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                        ),
+                        maxFontSize: 40,
+                        minFontSize: 18,
+                        maxLines: 2,
+                      ),
+                    ),
+                    SizedBox(
+                      child: AutoSizeText(
+                        'Participants Enrolled: 92 people',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                        ),
+                        maxFontSize: 40,
+                        minFontSize: 18,
+                        maxLines: 2,
+                      ),
+                    ),
+                    SizedBox(
+                      child: AutoSizeText(
+                        'Highest Score in This Course: 20 points',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                        ),
+                        maxFontSize: 40,
+                        minFontSize: 18,
+                        maxLines: 2,
+                      ),
+                    ),
+                    SizedBox(
+                      child: AutoSizeText(
+                        'Course End Date: 05/04/2025',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                        ),
+                        maxFontSize: 40,
+                        minFontSize: 18,
+                        maxLines: 2,
+                      ),
+                    ),
                     const SizedBox(height: 16),
                     const SizedBox(height: 0),
                     const Divider(color: Color(0xFF6BFFEE), thickness: 4),
@@ -258,9 +337,18 @@ class _EnrollState extends State<Enroll> {
                           padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 18),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                         ),
-                        child: Text(
-                          alreadyEnrolled ? 'Go to course' : 'Register the course',
-                          style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.055, fontWeight: FontWeight.bold, color: Colors.white),
+                        child: SizedBox(
+                          child: AutoSizeText(
+                            alreadyEnrolled ? 'Go to course' : 'Register the course',
+                            textAlign: TextAlign.start,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'Inter',
+                            ),
+                            maxFontSize: 40,
+                            minFontSize: 20,
+                            maxLines: 2,
+                          ),
                         ),
                       ),
                     ),
@@ -277,9 +365,18 @@ class _EnrollState extends State<Enroll> {
               // ---------------------------
               // วิดีโอแนะนำคอร์สเรียน
               // ---------------------------
-              Text(
-                'Introduction Video for the Course',
-                style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.05, fontWeight: FontWeight.bold, color: Color(0xFF2865A5)),
+              SizedBox(
+                child: AutoSizeText(
+                  'Introduction Video for the Course',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xFF2865A5),
+                    fontFamily: 'Inter',
+                  ),
+                  maxFontSize: 40,
+                  minFontSize: 20,
+                  maxLines: 2,
+                ),
               ),
               const SizedBox(height: 12),
               Container(
@@ -328,9 +425,19 @@ class _EnrollState extends State<Enroll> {
               color: const Color(0xFF4BC0B2),
               padding: const EdgeInsets.all(12),
               width: double.infinity,
-              child: Text(
-                title,
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width * 0.05,),
+              child: SizedBox(
+                child: AutoSizeText(
+                  title,
+                  textAlign: TextAlign.start,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter',
+                  ),
+                  maxFontSize: 40,
+                  minFontSize: 20,
+                  maxLines: 2,
+                ),
               ),
             ),
             Padding(
@@ -347,7 +454,18 @@ class _EnrollState extends State<Enroll> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text('Mr. Jirut Patanachan',style: TextStyle(fontWeight: FontWeight.bold,fontSize: MediaQuery.of(context).size.width * 0.045,),),
+                  SizedBox(
+                    child: AutoSizeText(
+                      'Mr. Jirut Patanachan',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                      ),
+                      maxFontSize: 35,
+                      minFontSize: 20,
+                      maxLines: 2,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -371,16 +489,31 @@ class _EnrollState extends State<Enroll> {
               color: const Color(0xFF3FA099),
               padding: const EdgeInsets.all(12),
               width: double.infinity,
-              child: Text(
+              child: AutoSizeText(
                 title,
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: MediaQuery.of(context).size.width * 0.05,),
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Inter',
+                ),
+                maxFontSize: 40,
+                minFontSize: 20,
+                maxLines: 2,
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Text(
+              child: AutoSizeText(
                 description,
-                style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04, color: Color(0xFF3FA099)),
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                  color: Color(0xFF3FA099),
+                  fontFamily: 'Inter',
+                ),
+                maxFontSize: 30,
+                minFontSize: 15,
+                maxLines: 2,
               ),
             ),
             SizedBox(height: 40),
